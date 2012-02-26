@@ -7,25 +7,36 @@ import play.api.libs.json._
 import play.api._
 import play.api.mvc._
 
+import anorm._
+
+import views._
+import models._
+
+import com.amazonaws.auth._
+import com.amazonaws.services.s3.transfer._
+import com.amazonaws.services.s3.model._
+
 object ApiFile extends Controller {
-    
-    import models._
-    import anorm._
     
     val fileForm = Form(
         mapping(
+            "id" -> ignored(NotAssigned:Pk[Long]),
             "name" -> nonEmptyText,
-            "description" -> text
-        )(
-            (n, d) => File(NotAssigned, n, d, None))
-            ((file: File) => Some(file.name, file.description)
-        )
+            "description" -> text,
+            "path" -> ignored(None:Option[String])
+        )(File.apply)(File.unapply)
     )
     
     def list = Action {
         val files = File.all
         Ok(Json.toJson(files))
     }
+    
+    def show(id: Long) = TODO
+    
+    def edit(id: Long) = TODO
+    
+    def delete(id: Long) = TODO
     
     def create = Action(parse.multipartFormData) { implicit request =>
         fileForm.bindFromRequest.fold(
@@ -41,11 +52,6 @@ object ApiFile extends Controller {
             })
         )
     }
-    
-    import com.amazonaws.auth._
-    import com.amazonaws.services.s3.transfer._
-    import com.amazonaws.services.s3.model._
-    import java.io._
     
     def send (part: MultipartFormData.FilePart[play.api.libs.Files.TemporaryFile]) = {
         

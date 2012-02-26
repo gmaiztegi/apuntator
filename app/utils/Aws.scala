@@ -1,5 +1,6 @@
 package utils
 
+import play.api.Play.current
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData.FilePart
 
@@ -9,8 +10,12 @@ import com.amazonaws.services.s3.model._
 
 object Aws {
     
-    val bucket = "apuntator"
-    val credentials = new BasicAWSCredentials("AKIAI6L4BGFPKZLQ77UA", "DxvugUxEOHL8snd/C16g3XeSuyu5KBBTjL4qEoyG")
+    val configuration = current.configuration
+    val bucket = configuration.getString("aws.s3.bucket").getOrElse(throw configuration.globalError("Missing S3 bucket name in configuration."))
+    val key = configuration.getString("aws.s3.key").getOrElse(throw configuration.globalError("Missing S3 access key in configuration."))
+    val secret = configuration.getString("aws.s3.secret").getOrElse(throw configuration.globalError("Missing S3 access secret in configuration."))
+    
+    val credentials = new BasicAWSCredentials(key, secret)
     
     def upload(folder: String, part: FilePart[TemporaryFile]) = {
         

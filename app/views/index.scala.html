@@ -1,7 +1,7 @@
 @(files: List[File])
 @import play.api.libs.json.Json
 @import helper.twitterBootstrap._
-@import controllers.ApiFile.fileForm
+@import controllers.FileApi.fileForm
 @main("Apuntator") {
     <script id="file-template" type="text/x-handlebars-template">
         <td>{{ name }}</td>
@@ -45,7 +45,7 @@
                 <p>Envía un archivo para que forme parte de nuestra base de datos</p>
             </div>
             <div class="span4">
-                @helper.form(action = routes.ApiFile.create, 'enctype -> "multipart/form-data", 'class -> "form-horizontal") {
+                @helper.form(action = routes.FileApi.create, 'enctype -> "multipart/form-data", 'class -> "form-horizontal") {
                     <fieldset class="file">
                         <input id="fileinput" name="file" type="file">
                     </fieldset>

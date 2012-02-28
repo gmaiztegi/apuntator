@@ -8,6 +8,12 @@ GET     /api/files/:id              controllers.FileApi.read(id: Long)
 PUT     /api/files/:id              controllers.FileApi.update(id: Long)
 DELETE  /api/files/:id              controllers.FileApi.delete(id: Long)
 
+GET     /api/users                  controllers.UserApi.list
+POST    /api/users                  controllers.UserApi.create
+GET     /api/users/:id              controllers.UserApi.read(id: Long)
+PUT     /api/users/:id              controllers.UserApi.update(id: Long)
+DELETE  /api/users/:id              controllers.UserApi.delete(id: Long)
+
 # Home page
 GET     /                           controllers.Application.index
 

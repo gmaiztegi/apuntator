@@ -1,7 +1,8 @@
-define ['Backbone', 'jQuery', 'Handlebars'], (Backbone, $, Handlebars) ->
+define ['Backbone', 'jQuery', 'Handlebars', 'text!templates/file/row.html'],
+(Backbone, $, Handlebars, rowTemplate) ->
         class FileView extends Backbone.View
             tagName: "tr"
-            template: Handlebars.compile $('#file-template').html()
+            template: Handlebars.compile rowTemplate
             initialize: ->
                 @model.bind('change', @render)
                 @model.bind('destroy', @render)

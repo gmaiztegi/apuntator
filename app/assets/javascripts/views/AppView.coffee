@@ -1,15 +1,16 @@
-define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileView', 'libs/jquery/jquery.iframe-transport'],
-(Backbone, $, Handlebars, FileList, FileView) ->
+define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileView', 'text!templates/file/main.html', 'libs/jquery/jquery.iframe-transport'],
+(Backbone, $, Handlebars, FileList, FileView, mainTemplate) ->
     
     class AppView extends Backbone.View
-        initialize: ->
-            @setElement($('#form'))
+        el: $('#content')
             
+        template: Handlebars.compile mainTemplate
+        
+        initialize: ->
             @Files = new FileList
             
             @Files.bind 'add', @addOne
             @Files.bind 'reset', @addAll
-            @Files.bind 'all', @render
             
             @Files.fetch()
         
@@ -20,6 +21,8 @@ define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileV
             'change #fileinput' : 'selectfile'
         
         render: =>
+            @$el.html @template()
+            @
         
         selectfile: (event) =>
             @$('.file').hide()
@@ -48,3 +51,5 @@ define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileV
         
         addAll: =>
             @Files.each(@addOne)
+            
+    new AppView

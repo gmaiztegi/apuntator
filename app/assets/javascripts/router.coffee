@@ -6,8 +6,7 @@ define ['jQuery', 'Underscore', 'Backbone', 'views/AppView'],
             '*default': 'defaultAction'
         
         indexAction: ->
-            console.log 'log'
-            new AppView
+            AppView.render()
         
         defaultAction: ->
             console.log 'No route!'

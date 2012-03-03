@@ -8,7 +8,7 @@ object Application extends Controller {
     import models._
     
     def index = Action {
-        Ok(views.html.index(File.all))
+        Ok(views.html.index())
     }
   
 }

@@ -22,6 +22,7 @@ define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileV
         
         render: =>
             @$el.html @template()
+            @addAll()
             @
         
         selectfile: (event) =>

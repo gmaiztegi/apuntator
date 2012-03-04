@@ -45,8 +45,10 @@ object UserApi extends Controller {
                 val (salt, hash) = User.encodePassword(user.plainPassword.get)
                 user.salt = Some(salt)
                 user.password = Some(hash)
-                user.id = anorm.Id(User.insert(user))
-                Created(Json.toJson(user))
+                User.insert(user).map { id =>
+                    user.id = anorm.Id(id)
+                    Created(Json.toJson(user))
+                }.getOrElse(BadRequest("Server error"))
             }            
         )
     }

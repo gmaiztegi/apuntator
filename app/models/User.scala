@@ -47,7 +47,6 @@ object User {
                 'salt -> user.salt.get,
                 'password -> user.password.get,
                 'algorithm -> user.algorithm
-            ).executeUpdate()
         }
     }
     

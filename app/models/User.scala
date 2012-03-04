@@ -65,10 +65,7 @@ object User {
     }
     
     def generateSalt(): String = {
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        val uuid = java.util.UUID.randomUUID.toString
-        val hash = digest.digest(uuid.getBytes)
-        val bigint = new java.math.BigInteger(hash)
+        val bigint = new java.math.BigInteger(256, new java.security.SecureRandom)
         bigint.toString(36)
     }
     

@@ -9,7 +9,13 @@ import anorm.SqlParser._
 
 case class User(var id: Pk[Long] = NotAssigned, username: String, email: String,
     plainPassword: Option[String], var salt: Option[String] = None,
-    var password: Option[String] = None, algorithm: String = User.defaultAlgorithm)
+    var password: Option[String] = None, algorithm: String = User.defaultAlgorithm) {
+    
+    def checkPassword(password: String): Boolean = {
+        val (_, encoded) = User.encodePassword(password, algorithm, salt.get)
+        this.password.get eq encoded
+    }
+}
 
 object User {
     
@@ -47,6 +53,7 @@ object User {
                 'salt -> user.salt.get,
                 'password -> user.password.get,
                 'algorithm -> user.algorithm
+            ).executeInsert()
         }
     }
     
@@ -56,8 +63,17 @@ object User {
         }
     }
     
-    def encodePassword(password: String, algorithm: String = defaultAlgorithm) = {
-        val salt = generateSalt()
+    def findByUsername(username: String): Option[User] = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                select * from users where username = {username}
+                """
+            ).onParams(username).as(simple.singleOpt)
+        }
+    }
+    
+    def encodePassword(password: String, algorithm: String = defaultAlgorithm, salt: String = generateSalt()) = {
         val digest = java.security.MessageDigest.getInstance(algorithm)
         val hash = digest.digest(password.getBytes).map("%02X" format _).mkString
         (salt, hash)

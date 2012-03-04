@@ -53,7 +53,7 @@ object User {
     
     def findById(id: Long): Option[User] = {
         DB.withConnection { implicit connection =>
-            SQL("select * from users where id = {id}").on('id -> id).as(simple.singleOpt)
+            SQL("select * from users where id = {id}").onParams(id).as(simple.singleOpt)
         }
     }
     

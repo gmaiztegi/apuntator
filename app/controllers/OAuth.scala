@@ -31,7 +31,7 @@ object OAuth extends Controller {
                             AccessToken.generate, new Date(System.currentTimeMillis + expires))
                         AccessToken.insert(token)
                         Ok("Successfuly logged in.").withCookies(
-                            Cookie("access_code", token.token, (expires/1000).toInt)
+                            Cookie(utils.OAuth.access_token, token.token, (expires/1000).toInt)
                         )
                     } else BadRequest("Username or password incorrect.")
                 }.getOrElse(BadRequest("Username or password incorrect."))

@@ -13,7 +13,7 @@ case class User(var id: Pk[Long] = NotAssigned, username: String, email: String,
     
     def checkPassword(password: String): Boolean = {
         val (_, encoded) = User.encodePassword(password, algorithm, salt.get)
-        this.password.get eq encoded
+        this.password.get == encoded
     }
 }
 

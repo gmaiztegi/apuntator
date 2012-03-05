@@ -13,9 +13,9 @@ object File {
     
     val simple = {
         get[Pk[Long]]("files.id") ~
-        get[String]("files.name") ~
-        get[String]("files.description") ~
-        get[String]("files.path") map {
+        str("files.name") ~
+        str("files.description") ~
+        str("files.path") map {
             case id~name~descr~path => File(id, name, descr, Some(path))
         }
     }

@@ -23,11 +23,11 @@ object User {
     
     val simple = {
         get[Pk[Long]]("users.id") ~
-        get[String]("users.username") ~
-        get[String]("users.email") ~
-        get[String]("users.salt") ~
-        get[String]("users.password") ~
-        get[String]("users.algorithm") map {
+        str("users.username") ~
+        str("users.email") ~
+        str("users.salt") ~
+        str("users.password") ~
+        str("users.algorithm") map {
             case id~username~email~salt~password~algorithm => User(id, username, email, None, Some(salt), Some(password), algorithm)
         }
     }

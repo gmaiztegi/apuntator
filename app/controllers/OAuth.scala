@@ -29,6 +29,7 @@ object OAuth extends Controller {
                         val expires = AccessToken.defaultExpirityMillis
                         val token = AccessToken(anorm.NotAssigned, None, user.id.get,
                             AccessToken.generate, new Date(System.currentTimeMillis + expires))
+                        AccessToken.insert(token)
                         Ok("Successfuly logged in.").withCookies(
                             Cookie("access_code", token.token, (expires/1000).toInt)
                         )

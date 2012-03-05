@@ -26,9 +26,9 @@ object OAuth extends Controller {
                 val (username, password, remember) = data
                 User.findByUsername(username).map { user =>
                     if (user.checkPassword(password)) {
-                        val expires = System.currentTimeMillis + AccessToken.defaultExpirityMillis
+                        val expires = AccessToken.defaultExpirityMillis
                         val token = AccessToken(anorm.NotAssigned, None, user.id.get,
-                            AccessToken.generate, new Date(expires))
+                            AccessToken.generate, new Date(System.currentTimeMillis + expires))
                         Ok("Successfuly logged in.").withCookies(
                             Cookie("access_code", token.token, (expires/1000).toInt)
                         )

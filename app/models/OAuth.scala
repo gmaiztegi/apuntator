@@ -27,11 +27,11 @@ object AccessToken {
     // -- Parsers
     
     val simple = {
-        get[Pk[Long]]("t.id") ~
-        get[Option[Long]]("t.clientid") ~
-        get[Long]("t.userid") ~
-        get[String]("t.token") ~
-        get[Date]("t.expires_at") map {
+        get[Pk[Long]]("access_tokens.id") ~
+        get[Option[Long]]("access_tokens.client_id") ~
+        get[Long]("access_tokens.user_id") ~
+        get[String]("access_tokens.token") ~
+        get[Date]("access_tokens.expires_at") map {
             case id~cId~uId~token~exp => AccessToken(id, cId, uId, token, exp)
         }
     }
@@ -42,13 +42,13 @@ object AccessToken {
         DB.withConnection { implicit connection =>
             SQL(
                 """
-                insert into access_tokens () values (
+                insert into access_tokens values (
                     (select next value for access_token_seq),
                     {cId}, {uId}, {token}, {expires}
                 )
                 """
             ).on(
-                'cId -> token.clientId,
+                'cId -> token.clientId.getOrElse(null),
                 'uId -> token.userId,
                 'token -> token.token,
                 'expires -> token.expiresAt
@@ -96,7 +96,7 @@ object Authentication {
                 select * from users inner join access_tokens t
                 on users.id = t.user_id left outer join
                 clients on t.client_id = clients.id
-                where redirect_uri is null and t.token = {token}
+                where t.token = {token}
                 """
             ).onParams(token).as(Authentication.simple.singleOpt)
         }

@@ -9,55 +9,41 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class Token(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
+case class AccessToken(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
+    token: String, expiresAt: Date)
+
+case class AuthCode(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
     token: String, expiresAt: Date, redirectUri: Option[String] = None)
 
 case class Client(id: Pk[Long] = NotAssigned, randomId: String, name: String,
     secret: Option[String] = None, grantTypes: List[String] = Nil)
 
-case class Authentication(user: User, client: Client, token: Token)
+case class Authentication(user: User, token: AccessToken, client: Option[Client])
 
-object Token {
+object AccessToken {
     
     val defaultExpirityMillis: Long = 7 * 24 * 60 * 60 * 1000
     
     // -- Parsers
     
     val simple = {
-        get[Pk[Long]]("tokens.id") ~
-        get[Option[Long]]("tokens.clientid") ~
-        get[Long]("tokens.userid") ~
-        get[String]("tokens.token") ~
-        get[Date]("tokens.expires_at") ~
-        get[Option[String]]("tokens.redirectUri") map {
-            case id~cId~uId~token~exp~red => Token(id, cId, uId, token, exp, red)
+        get[Pk[Long]]("t.id") ~
+        get[Option[Long]]("t.clientid") ~
+        get[Long]("t.userid") ~
+        get[String]("t.token") ~
+        get[Date]("t.expires_at") map {
+            case id~cId~uId~token~exp => AccessToken(id, cId, uId, token, exp)
         }
-    }
-    
-    val withUser = Token.simple ~ User.simple map {
-        case token~user => (token, user)
     }
     
     // -- Queries
     
-    def findUserByToken(token: String): Option[(Token, User)] = {
-        DB.withConnection { implicit connection =>
-            SQL(
-                """
-                select * from users inner join tokens 
-                on users.id = tokens.userid
-                where token = {token}
-                """
-            ).onParams(token).as(Token.withUser.singleOpt)
-        }
-    }
-    
-    def insert(token: Token) = {
+    def insert(token: AccessToken) = {
         DB.withConnection { implicit connection =>
             SQL(
                 """
                 insert into access_tokens () values (
-                    (select next value for token_seq),
+                    (select next value for access_token_seq),
                     {cId}, {uId}, {token}, {expires}
                 )
                 """
@@ -97,8 +83,8 @@ object Authentication {
     
     // -- Parsers
     
-    val simple = User.simple ~ Client.simple ~ Token.simple map {
-        case user~client~token => Authentication(user, client, token)
+    val simple = User.simple ~ AccessToken.simple ~ (Client.simple ?) map {
+        case user~token~client => Authentication(user, token, client)
     }
     
     // -- Queries
@@ -107,10 +93,10 @@ object Authentication {
         DB.withConnection { implicit connection =>
             SQL(
                 """
-                select * from users inner join tokens
-                on users.id = tokens.user_id inner join
-                clients on tokens.client_id = clients.id
-                where redirect_uri is null and token.token = {token}
+                select * from users inner join access_tokens t
+                on users.id = t.user_id left outer join
+                clients on t.client_id = clients.id
+                where redirect_uri is null and t.token = {token}
                 """
             ).onParams(token).as(Authentication.simple.singleOpt)
         }

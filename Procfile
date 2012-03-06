@@ -1,1 +1,1 @@
-web: target/start -Dhttp.port=${PORT} -DapplyEvolutions.default=true -Daws.s3.key=${S3_KEY} -Daws.s3.secret=${S3_SECRET} -Daws.s3.bucket=${S3_BUCKET}
+web: target/start -Dhttp.port=${PORT} -DapplyEvolutions.default=true -Ddb.default.driver=org.postgresql.Driver -Ddb.default.url=${DATABASE_URL} -Daws.s3.key=${S3_KEY} -Daws.s3.secret=${S3_SECRET} -Daws.s3.bucket=${S3_BUCKET} ${JAVA_OPTS}

@@ -2,8 +2,6 @@
 
 # --- !Ups
 
-set ignorecase true;
-
 create table files (
   id                        bigint not null,
   name                      varchar(255) not null,

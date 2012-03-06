@@ -59,7 +59,7 @@ object User {
             SQL(
                 """
                 insert into users values (
-                    (select next value for user_seq),
+                    nextval('user_seq'),
                     {username}, {email}, {salt}, {password}, {algorithm}
                 )
                 """

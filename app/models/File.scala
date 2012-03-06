@@ -31,7 +31,7 @@ object File {
             SQL(
                 """
                 insert into files values (
-                    (select next value for file_seq),
+                    nextval('file_seq'),
                     {name}, {description}, {path}
                 )
                 """

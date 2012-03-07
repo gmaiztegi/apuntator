@@ -1,7 +1,5 @@
 # --- !Ups
 
-set ignorecase true;
-
 create table users (
   id                        bigint not null,
   username                  varchar(255) unique not null,

@@ -1,7 +1,5 @@
 # --- !Ups
 
-set ignorecase true;
-
 create table access_tokens (
     id                          bigint not null,
     client_id                   bigint,

@@ -5,7 +5,7 @@ create table access_tokens (
     client_id                   bigint,
     user_id                     bigint not null,
     token                       varchar(255) not null,
-    expires_at                  datetime not null,
+    expires_at                  timestamp not null,
     constraint pk_access_tokens primary key (id),
     constraint fk_access_tokens_user_id foreign key (user_id) references users (id))
 ;

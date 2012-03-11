@@ -6,6 +6,7 @@ import play.api.libs.concurrent._
 import play.api.libs.json._
 import play.api._
 import play.api.mvc._
+import play.api.Play.current
 
 import views._
 import models._
@@ -35,11 +36,14 @@ object FileApi extends Controller {
             (file => {
                 request.body.file("file").map { upload =>
                     val filename = upload.filename
-                    Aws.upload("files", upload)
-                    upload.ref.finalize
+                    Akka.future {
+                        Aws.upload("files", upload)
+                        upload.ref.finalize
+                        Logger.info("File \""+filename+"\" uploaded to Amazon S3.")
+                    }
                     val id = File.insert(File(NotAssigned, file.name, file.description, Some(filename)))
                     val newfile = File(anorm.Id(id), file.name, file.description, Some(filename))
-                    Created(views.html.iframehack(Json.toJson(newfile)))
+                    Accepted(views.html.iframehack(Json.toJson(newfile)))
                 }.getOrElse(BadRequest("Missing file"))
             })
         )

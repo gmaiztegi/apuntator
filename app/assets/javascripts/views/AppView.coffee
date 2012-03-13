@@ -1,4 +1,4 @@
-define ['Backbone', 'jQuery', 'Handlebars', 'collections/FileList', 'views/FileView', 'text!templates/file/main.html', 'libs/jquery/jquery.iframe-transport'],
+define ['backbone', 'jquery', 'handlebars', 'collections/FileList', 'views/FileView', 'text!templates/file/main.html', 'iframe-transport'],
 (Backbone, $, Handlebars, FileList, FileView, mainTemplate) ->
     
     class AppView extends Backbone.View

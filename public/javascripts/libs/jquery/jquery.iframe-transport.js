@@ -89,7 +89,7 @@
 
 // ## Annotated Source
 
-(function($, undefined) {
+define(['jquery'], function($, undefined) {
   "use strict";
 
   // Register a prefilter that checks whether the `iframe` option is set, and
@@ -218,4 +218,4 @@
     }
   });
 
-})(jQuery);
+});

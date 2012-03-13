@@ -1,4 +1,4 @@
-define ['jQuery', 'Underscore', 'Backbone', 'views/AppView', 'views/RegisterView'],
+define ['jquery', 'underscore', 'backbone', 'views/AppView', 'views/RegisterView'],
 ($, _, Backbone, AppView, RegisterView) ->
     class AppRouter extends Backbone.Router
         routes:

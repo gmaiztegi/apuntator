@@ -1,4 +1,4 @@
-define ['Backbone', 'jQuery', 'Handlebars', 'text!templates/user/signup.html'],
+define ['backbone', 'jquery', 'handlebars', 'text!templates/user/signup.html'],
 (Backbone, $, Handlebars, form) ->
     class RegisterView extends Backbone.View
         el: $('#content')

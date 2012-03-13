@@ -1,4 +1,4 @@
-define ['Backbone', 'jQuery', 'Handlebars', 'text!templates/file/row.html'],
+define ['backbone', 'jquery', 'handlebars', 'text!templates/file/row.html'],
 (Backbone, $, Handlebars, rowTemplate) ->
         class FileView extends Backbone.View
             tagName: "tr"

@@ -13,7 +13,7 @@ define [
         basePath: '/assets/javascripts/libs/webshims/shims/'
     }
   
-    #//$.webshims.polyfill();
+    $.webshims.polyfill()
   
     {
         initialize: initialize

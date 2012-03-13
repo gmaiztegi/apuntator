@@ -3,6 +3,6 @@ define(['order!libs/backbone/backbone-0.9.1', 'order!libs/backbone/backbone.mari
   // We can call noConflict() to remove them from the global name space
   // Require.js will keep a reference to them so we can use them in our modules
   _.noConflict();
-  $.noConflict(true);
+  $.noConflict();
   return Backbone.noConflict();
 });

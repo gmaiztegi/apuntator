@@ -1,16 +1,11 @@
-define ['backbone', 'jquery', 'handlebars', 'text!templates/user/signup.html'],
-(Backbone, $, Handlebars, form) ->
-    class RegisterView extends Backbone.View
-        el: $('#content')
+define ['backbone', 'jquery'],
+(Backbone, $, Handlebars) ->
+    class RegisterView extends Backbone.Marionette.ItemView
         
-        formTemplate: Handlebars.compile form
+        template: '#tmpl-user-signup'
         
         events:
             'submit form': 'submit'
-        
-        render: ->
-            @$el.html @formTemplate()
-            @
         
         submit: (event) ->
             $.ajax(event.target.action, {
@@ -18,7 +13,6 @@ define ['backbone', 'jquery', 'handlebars', 'text!templates/user/signup.html'],
                 processData: false
                 type: 'POST'
             }).done( (data) =>
-                console.log(data)
                 alert 'Registrado correctamente'
             )
             false

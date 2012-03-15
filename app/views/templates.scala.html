@@ -1,0 +1,108 @@
+<script id="tmpl-file-main" type="template">
+<div class="hero-unit">
+    <h1>Apuntator</h1>
+    <p>Bienvenido al programa de prueba de Gorka.</p>
+    <p><button class="btn btn-primary btn-large">Esto no es un botón</button></p>
+</div>
+<section id="files">
+    <div class="page-header">
+        <h1>Archivos <small>Utilizalos con responsabilidad</small></h1>
+    </div>
+    <div class="row">
+        <div class="span4">
+            <p>Aquí encontrarás los archivos que han sido añadidos a nuestra querida base de datos de apuntes.</p>
+        </div>
+        <div class="span8">
+            <table id="file-table" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Descargar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<section id="form">
+    <div class="page-header">
+        <h1>Nuevo fichero <small>Utiliza el formulario para enviar</small></h1>
+    </div>
+    <div class="row">
+        <div class="span4">
+            <p>Envía un archivo para que forme parte de nuestra base de datos</p>
+        </div>
+        <div class="span4">
+            <form class="well" action="/api/files" enctype="multipart/form-data">
+                <fieldset class="file">
+                    <input id="fileinput" name="file" type="file">
+                </fieldset>
+                <fieldset class="data" style="display:none;">
+                    <label>Nombre</label>
+                    <input type="text" name="name" />
+                    <label>Descripción</label>
+                    <textarea name="description"></textarea>
+                    <button type="submit" class="btn primary">Enviar</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="span4">
+            <h3>Información:</h3>
+            <ul>
+                <li><strong>Nombre: </strong><span id="filename"></li>
+            </ul>
+        </div>
+    </div>
+</section>
+<section id="login">
+    <div class="page-header">
+        <h1>Login <small>Inicia sesión aquí.</small></h1>
+    </div>
+    <form class="well" action="/login" method="post">
+        <fieldset>
+            <label>Username</label>
+            <input type="text" name="username" />
+            <label>Password</label>
+            <input type="password" name="password" />
+            <label class="checkbox">
+                <input type="checkbox" name="remember" />
+                Recordar
+            </label>
+        </fieldset>
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+</section>
+</script>
+<script id="tmpl-file-row" type="template">
+<td>{{= name }}</td>
+<td>{{= description }}</td>
+<td><a href="{{= path }}">Descargar</a></td>
+</script>
+<script id="tmpl-user-signup" type="template">
+<section id="register">
+    <div class="page-header">
+        <h1>Registro <small>Crea un usuario para poder subir archivos</small></h1>
+    </div>
+    <div class="row">
+        <div class="span4">
+            <h2>Crea un usuario</h2>
+        </div>
+        <div class="span8">
+            <form action="/api/users" method="post">
+                <label>Nombre de usuario:</label>
+                <input type="text" name="username" />
+                <label>Email:</label>
+                <input type="email" name="email" />
+                <label>Contraseña:</label>
+                <input type="password" name="password.main" />
+                <label>Confirmar contraseña:</label>
+                <input type="password" name="password.confirm" />
+                <button class="btn primary">Registrar</button>
+            </form>
+        </div>
+    </div>
+</section>
+</script>

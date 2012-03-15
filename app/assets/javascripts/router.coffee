@@ -1,29 +1,17 @@
-define ['jquery', 'underscore', 'backbone', 'views/AppView', 'views/RegisterView'],
-($, _, Backbone, AppView, RegisterView) ->
-    class AppRouter extends Backbone.Router
-        routes:
+define ['backbone', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView'],
+(Backbone, App, FilesView, RegisterView) ->
+    class Router extends Backbone.Marionette.AppRouter
+        appRoutes:
             '': 'filesAction'
             'files': 'filesAction'
             'register': 'registerAction'
             '*default': 'defaultAction'
         
-        filesAction: ->
-            RegisterView.undelegateEvents()
-            AppView.render()
-            AppView.delegateEvents()
-        
-        registerAction: ->
-            AppView.undelegateEvents()
-            RegisterView.render()
-            RegisterView.delegateEvents()
-        
-        defaultAction: ->
-            console.log 'No route!'
-    
-    initialize = ->
-        app_router = new AppRouter
-        Backbone.history.start()
-    
-    {
-        initialize: initialize
-    }
+        controller:
+            filesAction: ->
+                App.main.show(FilesView)
+
+            registerAction: ->
+                App.main.show(RegisterView)
+
+            defaultAction: ->

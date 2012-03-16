@@ -1,7 +1,7 @@
 define [
-    'backbone'
+    'use!marionette'
     'collections/FileList'
     'views/FileView'
-], (Backbone, FileList, FileView) ->
-    class FileTable extends Backbone.Marionette.CollectionView
+], (Marionette, FileList, FileView) ->
+    class FileTable extends Marionette.CollectionView
         itemView: FileView

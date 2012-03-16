@@ -1,6 +1,6 @@
-define ['backbone', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView'],
-(Backbone, App, FilesView, RegisterView) ->
-    class Router extends Backbone.Marionette.AppRouter
+define ['use!marionette', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView'],
+(Marionette, App, FilesView, RegisterView) ->
+    class Router extends Marionette.AppRouter
         appRoutes:
             '': 'filesAction'
             'files': 'filesAction'

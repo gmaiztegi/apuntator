@@ -1,6 +1,6 @@
-define ['backbone', 'jquery'],
-(Backbone, $, Handlebars) ->
-    class RegisterView extends Backbone.Marionette.ItemView
+define ['use!marionette', 'jquery'],
+(Marionette, $) ->
+    class RegisterView extends Marionette.ItemView
         
         template: '#tmpl-user-signup'
         

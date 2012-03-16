@@ -1,11 +1,12 @@
 define [
     'jquery'
-    'underscore'
-    'backbone'
+    'use!backbone'
     'router'
     'ApuntatorApp'
     'polyfiller'
-], ($, _, Backbone, Router, App) ->
+    'use!marionette'
+    'use!template'
+], ($, Backbone, Router, App) ->
     initialize = ->
         App.start()
     

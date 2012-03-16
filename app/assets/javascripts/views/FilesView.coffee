@@ -1,12 +1,12 @@
 define [
-    'backbone'
+    'use!marionette'
     'jquery'
     'collections/FileList'
     'views/FileTable'
     'iframe-transport'
-], (Backbone, $,  FileList, FileTable) ->
+], (Marionette, $,  FileList, FileTable) ->
     
-    class FilesView extends Backbone.Marionette.Layout
+    class FilesView extends Marionette.Layout
             
         template: '#tmpl-file-main'
         

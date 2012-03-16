@@ -1,5 +1,5 @@
-define ['backbone'], (Backbone) ->
-    app = new Backbone.Marionette.Application
+define ['use!marionette'], (Marionette) ->
+    app = new Marionette.Application
     app.addRegions {
         main: '#content'
     }

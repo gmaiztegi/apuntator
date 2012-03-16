@@ -11,13 +11,19 @@ define [
         template: '#tmpl-file-main'
         
         regions: {
-            table: '#filetable tbody'
+            table: '#file-table'
         }
         
         events:
             'submit form': 'newsend'
             'change #fileinput' : 'selectfile'
         
+        initialize: ->
+            @files = new FileList
+            @tableview = new FileTable {
+                collection: @files
+            }
+
         selectfile: (event) =>
             @$('.file').hide()
             @$('.data').show()
@@ -41,15 +47,8 @@ define [
         onRender: ->
             @fileinput = @$('#fileinput')
             
-            @files = new FileList
             @files.fetch()
             
-            table = new FileTable {
-                collection: @files
-                el: @$('#file-table tbody')
-            }
-            
-            table.render()
-            @table.show table
+            @table.show @tableview, 'append'
             
     new FilesView

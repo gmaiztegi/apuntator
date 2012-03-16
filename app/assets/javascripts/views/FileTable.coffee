@@ -5,3 +5,5 @@ define [
 ], (Marionette, FileList, FileView) ->
     class FileTable extends Marionette.CollectionView
         itemView: FileView
+
+        tagName: 'tbody'

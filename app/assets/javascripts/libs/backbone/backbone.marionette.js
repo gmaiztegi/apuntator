@@ -1,4 +1,4 @@
-// Backbone.Marionette v0.6.1
+// Backbone.Marionette v0.6.2
 //
 // Copyright (C)2011 Derick Bailey, Muted Solutions, LLC
 // Distributed Under MIT License
@@ -9,7 +9,7 @@
 Backbone.Marionette = (function(Backbone, _, $){
   var Marionette = {};
 
-  Marionette.version = "0.6.1";
+  Marionette.version = "0.6.2";
 
   // Item View
   // ---------
@@ -86,7 +86,7 @@ Backbone.Marionette = (function(Backbone, _, $){
         throw err;
       }
 
-      return _.template(template.html(), data);
+      return _.template(template, data);
     },
 
     // Retrieve the template from the call's context. The
@@ -138,14 +138,7 @@ Backbone.Marionette = (function(Backbone, _, $){
     initialEvents: function(){
       this.bindTo(this.collection, "add", this.addChildView, this);
       this.bindTo(this.collection, "remove", this.removeChildView, this);
-      this.bindTo(this.collection, "reset", this.reRender, this);
-    },
-
-    // Re-rendering the collection view involves closing any
-    // existing child views before rendering again.
-    reRender: function(){
-      this.closeChildren();
-      this.render();
+      this.bindTo(this.collection, "reset", this.render, this);
     },
 
     // Loop through all of the items and render 
@@ -154,6 +147,8 @@ Backbone.Marionette = (function(Backbone, _, $){
       var that = this;
       var deferredRender = $.Deferred();
       var promises = [];
+
+      this.closeChildren();
 
       if (!this.itemView){
         var err = new Error("An `itemView` must be specified");
@@ -643,6 +638,7 @@ Backbone.Marionette = (function(Backbone, _, $){
   // caching them for faster access.
   Marionette.TemplateCache = {
     templates: {},
+    loaders: {},
 
     // Get the specified template by id. Either
     // retrieves the cached version, or loads it
@@ -655,11 +651,18 @@ Backbone.Marionette = (function(Backbone, _, $){
       if (cachedTemplate){
         templateRetrieval.resolve(cachedTemplate);
       } else {
+        var loader = this.loaders[templateId];
+        if(loader) {
+          templateRetrieval = loader;
+        } else {
+          this.loaders[templateId] = templateRetrieval;
 
-        this.loadTemplate(templateId, function(template){
-          that.templates[templateId] = template;
-          templateRetrieval.resolve(template);
-        });
+          this.loadTemplate(templateId, function(template){
+            delete that.loaders[templateId];
+            that.templates[templateId] = template;
+            templateRetrieval.resolve(template);
+          });
+        }
 
       }
 
@@ -670,7 +673,7 @@ Backbone.Marionette = (function(Backbone, _, $){
     // this method to provide your own template retrieval,
     // such as asynchronous loading from a server.
     loadTemplate: function(templateId, callback){
-      var template = $(templateId);
+      var template = $(templateId).html();
       callback.call(this, template);
     },
 

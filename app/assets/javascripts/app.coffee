@@ -20,7 +20,7 @@ define [
     }
     
     Backbone.Marionette.ItemView.prototype.renderTemplate = (template, data) ->
-        template.tmpl data
+        $.tmpl template, data
     
     $.webshims.polyfill()
   

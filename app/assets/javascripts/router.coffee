@@ -2,16 +2,16 @@ define ['use!marionette', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView
 (Marionette, App, FilesView, RegisterView) ->
     class Router extends Marionette.AppRouter
         appRoutes:
-            '': 'filesAction'
-            'files': 'filesAction'
-            'register': 'registerAction'
-            '*default': 'defaultAction'
+            '': 'files'
+            'files': 'files'
+            'register': 'register'
+            '*default': 'default'
         
         controller:
-            filesAction: ->
+            files: ->
                 App.main.show(FilesView)
 
-            registerAction: ->
+            register: ->
                 App.main.show(RegisterView)
 
-            defaultAction: ->
+            default: ->

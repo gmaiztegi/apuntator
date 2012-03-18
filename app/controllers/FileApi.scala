@@ -25,6 +25,13 @@ object FileApi extends Controller {
         )(File.apply)(File.unapply)
     )
     
+    val updateForm = Form(
+        tuple(
+            "name" -> nonEmptyText,
+            "description" -> text
+        )
+    )
+
     def list = Action {
         val files = File.all
         Ok(Json.toJson(files))
@@ -41,17 +48,37 @@ object FileApi extends Controller {
                         upload.ref.finalize
                         Logger.info("File \""+filename+"\" uploaded to Amazon S3.")
                     }
-                    val id = File.insert(File(NotAssigned, file.name, file.description, Some(filename)))
-                    val newfile = File(anorm.Id(id), file.name, file.description, Some(filename))
-                    Accepted(views.html.iframehack(Json.toJson(newfile)))
+                    File.insert(File(NotAssigned, file.name, file.description, Some(filename))).map { id =>
+                        val newfile = File(anorm.Id(id), file.name, file.description, Some(filename))
+                        Accepted(views.html.iframehack(Json.toJson(newfile)))
+                    }.getOrElse(BadRequest("Error!"))
                 }.getOrElse(BadRequest("Missing file"))
             })
         )
     }
     
-    def read(id: Long) = TODO
+    def read(id: Long) = Action {
+        File.findById(id).map { file =>
+            Ok(Json.toJson(file))
+        }.getOrElse(NotFound("No file with id "+id))
+    }
     
-    def update(id: Long) = TODO
+    def update(id: Long) = Action { implicit request =>
+        updateForm.bindFromRequest.fold (
+            formWithErrors => BadRequest("Formulario no valido"),
+            newdata => File.findById(id).map { file =>
+                val (name, desc) = newdata
+                val newfile = File(file.id, name, desc, file.path)
+                File.update(id, newfile)
+                Ok(Json.toJson(newfile))
+            }.getOrElse(NotFound("No file with id "+id))
+        )
+    }
     
-    def delete(id: Long) = TODO
+    def delete(id: Long) = Action {
+        File.findById(id).map { file =>
+            File.delete(id)
+            Ok("File deleted")
+        }.getOrElse(NotFound("No file with id "+id))
+    }
 }

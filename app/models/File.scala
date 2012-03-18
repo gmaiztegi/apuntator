@@ -25,6 +25,12 @@ object File {
             SQL("select * from files").as(File.simple *)
         }
     }
+
+    def findById(id: Long): Option[File] = {
+        DB.withConnection { implicit connection =>
+            SQL("select * from files where id = {id}").onParams(id).as(simple.singleOpt)
+        }
+    }
     
     def insert(file: File) = {
         DB.withConnection { implicit connection =>
@@ -39,10 +45,37 @@ object File {
                 'name -> file.name,
                 'description -> file.description,
                 'path -> file.path.getOrElse(null)
+            ).executeInsert()
+        }
+    }
+
+    def update(id: Long, file: File) = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                update files
+                set name = {name}, description = {descr}, path = {path}
+                where id = {id}
+                """
+            ).on(
+                'id -> id,
+                'name -> file.name,
+                'descr -> file.description,
+                'path -> file.path.get
             ).executeUpdate()
         }
     }
     
+    def delete(id: Long) = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                delete from files where id = {id}
+                """
+            ).onParams(id).executeUpdate()
+        }
+    }
+
     implicit object FileFormat extends Format[File] {
         def reads(json: JsValue): File = File(
             (json \ "id").asOpt[Long].map {id => Id(id)}.getOrElse(NotAssigned),

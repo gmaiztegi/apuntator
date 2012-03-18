@@ -35,8 +35,8 @@ object OAuth {
     }
     
     def Authenticated[A](action: Authentication => Action[A]): Action[(Action[A], A)] = Authenticated(
-        req => req.cookies.get(access_token).map{ cookie =>
+        req => req.cookies.get(access_token).flatMap{ cookie =>
             Authentication.findByToken(cookie.value)
-        }.getOrElse(None),
+        },
         _ => Unauthorized(views.html.defaultpages.unauthorized()))(action)
 }

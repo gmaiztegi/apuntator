@@ -3,26 +3,33 @@ define [
     'jquery'
     'collections/FileList'
     'views/FileTable'
+    'views/MenuView'
+    'models/MenuItem'
     'iframe-transport'
-], (Marionette, $,  FileList, FileTable) ->
+], (Marionette, $,  FileList, FileTable, MenuView, MenuItem) ->
     
     class FilesView extends Marionette.Layout
             
         template: '#tmpl-file-main'
         
-        regions: {
+        regions:
             table: '#file-table'
-        }
         
         events:
             'submit form': 'newsend'
             'change #fileinput' : 'selectfile'
         
+        menuitem: new MenuItem
+            title: 'Ficheros'
+            tag: 'files'
+            order: 50
+
         initialize: ->
             @files = new FileList
-            @tableview = new FileTable {
+            @tableview = new FileTable
                 collection: @files
-            }
+
+            MenuView.leftitems.add @menuitem
 
         selectfile: (event) =>
             @$('.file').hide()

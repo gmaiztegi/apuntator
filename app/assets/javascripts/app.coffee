@@ -3,13 +3,17 @@ define [
     'use!backbone'
     'router'
     'ApuntatorApp'
+    'views/MenuView'
     'polyfiller'
     'use!marionette'
     'use!template'
-], ($, Backbone, Router, App) ->
+], ($, Backbone, Router, App, MenuView) ->
     initialize = ->
         App.start()
-    
+
+    App.addInitializer ->
+        App.menu.show MenuView
+
     App.addInitializer ->
         new Router
         Backbone.history.start()

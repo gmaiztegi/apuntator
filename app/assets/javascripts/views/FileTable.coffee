@@ -1,9 +1,7 @@
 define [
     'use!marionette'
-    'collections/FileList'
     'views/FileView'
-], (Marionette, FileList, FileView) ->
+], (Marionette, FileView) ->
     class FileTable extends Marionette.CollectionView
         itemView: FileView
-
         tagName: 'tbody'

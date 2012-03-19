@@ -8,7 +8,7 @@ import play.api.libs.iteratee._
 
 import models._
 
-object OAuth {
+object Security {
     
     lazy val access_token: String = Play.maybeApplication map (_.configuration.getString("session.access_token")) flatMap (e => e) getOrElse ("access_token")
 

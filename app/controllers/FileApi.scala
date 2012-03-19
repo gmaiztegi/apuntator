@@ -49,7 +49,7 @@ object FileApi extends Controller {
                         Logger.info("File \""+filename+"\" uploaded to Amazon S3.")
                     }
                     File.insert(File(NotAssigned, file.name, file.description, filename)).map { id =>
-                        val newfile = File(anorm.Id(id), file.name, file.description, filename)
+                        val newfile = file.copy(id = anorm.Id(id), path = filename)
                         Accepted(views.html.iframehack(Json.toJson(newfile)))
                     }.getOrElse(BadRequest("Error!"))
                 }.getOrElse(BadRequest("Missing file"))
@@ -68,7 +68,7 @@ object FileApi extends Controller {
             formWithErrors => BadRequest("Formulario no valido"),
             newdata => File.findById(id).map { file =>
                 val (name, desc) = newdata
-                val newfile = File(file.id, name, desc, file.path)
+                val newfile = file.copy(name = name, description = desc)
                 File.update(id, newfile)
                 Ok(Json.toJson(newfile))
             }.getOrElse(NotFound("No file with id "+id))

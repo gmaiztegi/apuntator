@@ -59,7 +59,8 @@ object UserApi extends Controller {
             }))),
             user => {
                 User.insert(user).map { id =>
-                    Created(Json.toJson(User(anorm.Id(id), user.username, user.email, user.plainPassword, user.salt, user.password, user.algorithm)))
+                    val newuser = user.copy(id = anorm.Id(id))
+                    Created(Json.toJson(newuser))
                 }.getOrElse(BadRequest("Server error"))
             }            
         )
@@ -77,7 +78,7 @@ object UserApi extends Controller {
                 formWithErrors => BadRequest("Errors"),
                 data => {
                     val (username, email) = data
-                    val newuser = User(user.id, username, email, None, user.salt, user.password, user.algorithm)
+                    val newuser = user.copy(username = username, email = email)
                     User.update(id, newuser)
                     Ok(Json.toJson(newuser))
                 }

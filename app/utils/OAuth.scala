@@ -12,6 +12,14 @@ object OAuth {
     
     lazy val access_token: String = Play.maybeApplication map (_.configuration.getString("session.access_token")) flatMap (e => e) getOrElse ("access_token")
 
+    private val getAuth: RequestHeader => Option[Authentication] = { req =>
+        req.cookies.get(access_token).flatMap { cookie => Authentication.findByToken(cookie.value) }
+    }
+
+    private val defaultUnAuth: RequestHeader => Result = { _ =>
+        Unauthorized(views.html.defaultpages.unauthorized())
+    }
+
     private def Authenticated[A](
         authentication: RequestHeader => Option[Authentication]
     )(action: Authentication => Action[A], onUnauthorized: RequestHeader => Result): Action[(Action[A], A)] = {
@@ -33,8 +41,6 @@ object OAuth {
         }
     }
 
-    def Authenticated[A](action: Authentication => Action[A], onUnauthorized: RequestHeader => Result): Action[(Action[A], A)] = Authenticated(
-        req => req.cookies.get(access_token).flatMap { cookie =>
-            Authentication.findByToken(cookie.value)
-        })(action, onUnauthorized)
+    def Authenticated[A](action: Authentication => Action[A], onUnauthorized: RequestHeader => Result = defaultUnAuth): Action[(Action[A], A)] = Authenticated(getAuth)(action, onUnauthorized)
+
 }

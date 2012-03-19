@@ -28,13 +28,10 @@ object UserApi extends Controller {
             ).verifying(
                 "Las contraseñas no coinciden", passwords => passwords._1 == passwords._2
             )
+        )(
+            (username, email, passwords) => User(username, email, passwords._1))(
+            (user: User) => Some(user.username, user.email, ("", ""))
         )
-        {
-            (username, email, passwords) => User(anorm.NotAssigned, username, email, Some(passwords._1))
-        }
-        {
-            user => Some(user.username, user.email, (user.password.getOrElse(""), ""))
-        }
     )
     
     def editForm(username: String, addr: String) = Form(
@@ -61,12 +58,8 @@ object UserApi extends Controller {
                 error.key -> JsString(error.message)
             }))),
             user => {
-                val (salt, hash) = User.encodePassword(user.plainPassword.get)
-                user.salt = Some(salt)
-                user.password = Some(hash)
                 User.insert(user).map { id =>
-                    user.id = anorm.Id(id)
-                    Created(Json.toJson(user))
+                    Created(Json.toJson(User(anorm.Id(id), user.username, user.email, user.plainPassword, user.salt, user.password, user.algorithm)))
                 }.getOrElse(BadRequest("Server error"))
             }            
         )

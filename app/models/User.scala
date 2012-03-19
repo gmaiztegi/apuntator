@@ -7,13 +7,13 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class User(var id: Pk[Long] = NotAssigned, username: String, email: String,
-    plainPassword: Option[String], var salt: Option[String] = None,
-    var password: Option[String] = None, algorithm: String = User.defaultAlgorithm) {
+case class User(id: Pk[Long] = NotAssigned, username: String, email: String,
+    plainPassword: Option[String], salt: String,
+    password: String, algorithm: String = User.defaultAlgorithm) {
     
     def checkPassword(password: String): Boolean = {
-        val (_, encoded) = User.encodePassword(password, algorithm, salt.get)
-        this.password.get == encoded
+        val (_, encoded) = User.encodePassword(password, algorithm, salt)
+        this.password == encoded
     }
 }
 
@@ -28,10 +28,15 @@ object User {
         str("users.salt") ~
         str("users.password") ~
         str("users.algorithm") map {
-            case id~username~email~salt~password~algorithm => User(id, username, email, None, Some(salt), Some(password), algorithm)
+            case id~username~email~salt~password~algorithm => User(id, username, email, None, salt, password, algorithm)
         }
     }
     
+    def apply(username: String, email: String, plainPassword: String): User = {
+        val (salt, hash) = User.encodePassword(plainPassword)
+        User(NotAssigned, username, email, Some(plainPassword), salt, hash, defaultAlgorithm)
+    }
+
     def all(): List[User] = {
         DB.withConnection { implicit connection =>
             SQL("select * from users").as(User.simple *)
@@ -54,7 +59,7 @@ object User {
         }
     }
     
-    def insert(user: User) = {
+    def insert(user: User): Option[Long] = {
         DB.withConnection { implicit connection =>
             SQL(
                 """
@@ -66,8 +71,8 @@ object User {
             ).on(
                 'username -> user.username, 
                 'email -> user.email,
-                'salt -> user.salt.get,
-                'password -> user.password.get,
+                'salt -> user.salt,
+                'password -> user.password,
                 'algorithm -> user.algorithm
             ).executeInsert()
         }
@@ -85,10 +90,10 @@ object User {
                 'id -> id,
                 'username -> user.username, 
                 'email -> user.email,
-                'salt -> user.salt.get,
-                'password -> user.password.get,
+                'salt -> user.salt,
+                'password -> user.password,
                 'algorithm -> user.algorithm
-            ).executeInsert()
+            ).executeUpdate()
         }
     }
     
@@ -133,17 +138,16 @@ object User {
     
     implicit object UserFormat extends Format[User] {
         def reads(json: JsValue): User = User(
-            (json \ "id").asOpt[Long].map {id => Id(id)}.getOrElse(NotAssigned),
             (json \ "username").as[String],
             (json \ "email").as[String],
-            (json \ "password").asOpt[String]
+            (json \ "password").as[String]
         )
         def writes(u: User): JsValue = JsObject(List(
             "id" -> JsNumber(u.id.get),
             "username" -> JsString(u.username),
             "email" -> JsString(u.email),
-            "salt" -> JsString(u.salt.get),
-            "password" -> JsString(u.password.get)
+            "salt" -> JsString(u.salt),
+            "password" -> JsString(u.password)
         ))
     }
 }

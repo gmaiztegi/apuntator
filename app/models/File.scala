@@ -7,7 +7,7 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class File(id: Pk[Long] = NotAssigned, name:String, description:String, path:Option[String])
+case class File(id: Pk[Long] = NotAssigned, name:String, description:String, path:String)
 
 object File {
     
@@ -16,7 +16,7 @@ object File {
         str("files.name") ~
         str("files.description") ~
         str("files.path") map {
-            case id~name~descr~path => File(id, name, descr, Some(path))
+            case id~name~descr~path => File(id, name, descr, path)
         }
     }
     
@@ -44,7 +44,7 @@ object File {
             ).on(
                 'name -> file.name,
                 'description -> file.description,
-                'path -> file.path.getOrElse(null)
+                'path -> file.path
             ).executeInsert()
         }
     }
@@ -61,7 +61,7 @@ object File {
                 'id -> id,
                 'name -> file.name,
                 'descr -> file.description,
-                'path -> file.path.get
+                'path -> file.path
             ).executeUpdate()
         }
     }
@@ -81,13 +81,13 @@ object File {
             (json \ "id").asOpt[Long].map {id => Id(id)}.getOrElse(NotAssigned),
             (json \ "name").as[String],
             (json \ "description").as[String],
-            (json \ "path").asOpt[String]
+            (json \ "path").as[String]
         )
         def writes(f:File): JsValue = JsObject(List(
             "id" -> JsNumber(f.id.get),
             "name" -> JsString(f.name),
             "description" -> JsString(f.description),
-            "path" -> f.path.map{ee => JsString("http://apuntator.s3.amazonaws.com/files/"+ee)}.getOrElse(JsNull)
+            "path" -> JsString("http://apuntator.s3.amazonaws.com/files/"+f.path)
         ))
     }
 }

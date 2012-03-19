@@ -21,7 +21,7 @@ object FileApi extends Controller {
             "id" -> ignored(NotAssigned:Pk[Long]),
             "name" -> nonEmptyText,
             "description" -> text,
-            "path" -> ignored(None:Option[String])
+            "path" -> ignored(null:String)
         )(File.apply)(File.unapply)
     )
     
@@ -48,8 +48,8 @@ object FileApi extends Controller {
                         upload.ref.finalize
                         Logger.info("File \""+filename+"\" uploaded to Amazon S3.")
                     }
-                    File.insert(File(NotAssigned, file.name, file.description, Some(filename))).map { id =>
-                        val newfile = File(anorm.Id(id), file.name, file.description, Some(filename))
+                    File.insert(File(NotAssigned, file.name, file.description, filename)).map { id =>
+                        val newfile = File(anorm.Id(id), file.name, file.description, filename)
                         Accepted(views.html.iframehack(Json.toJson(newfile)))
                     }.getOrElse(BadRequest("Error!"))
                 }.getOrElse(BadRequest("Missing file"))

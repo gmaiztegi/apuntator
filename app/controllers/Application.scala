@@ -3,12 +3,14 @@ package controllers
 import play.api._
 import play.api.mvc._
 
+import models._
+import utils.OAuth._
+
 object Application extends Controller {
     
-    import models._
-    
-    def index = Action {
-        Ok(views.html.index())
-    }
-  
+    def index = Authenticated ({ auth =>
+    	Action {
+        	Ok(views.html.index())
+    	}
+	}, _ => Ok(views.html.index()))
 }

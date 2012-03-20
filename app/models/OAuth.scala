@@ -43,7 +43,7 @@ object AccessToken {
             SQL(
                 """
                 insert into access_tokens values (
-                    (select next value for access_token_seq),
+                    nextval('access_token_seq'),
                     {cId}, {uId}, {token}, {expires}
                 )
                 """

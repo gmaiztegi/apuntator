@@ -1,26 +1,28 @@
+# --- Add files database schema
+
 # --- !Ups
 
-create table users (
-  id                        bigint not null,
-  username                  varchar(255) unique not null,
-  email                     varchar(255) unique not null,
-  salt                      varchar(255) not null,
-  password                  varchar(255) not null,
-  algorithm                 varchar(64) not null,
-  constraint pk_user primary key (id))
+create table files (
+    id                          bigint not null,
+    name                        varchar(255) not null,
+    description                 text not null,
+    random_id                   varchar(64) not null,
+    filename                    varchar(255) not null,
+    user_id                     bigint not null,
+    created_at                  timestamp not null,
+    updated_at                  timestamp not null,
+    constraint pk_file primary key (id),
+    constraint fk_files_user_id foreign key (user_id) references users (id))
 ;
 
-create sequence user_seq start with 1000;
+create index idx_files_name on files (name);
+create index idx_files_filename on files (filename);
 
-create unique index idx_users_username on users (username);
-create unique index idx_users_email on users (email);
+create sequence file_seq start with 1;
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+drop table if exists files;
 
-drop table if exists users;
+drop sequence if exists file_seq;
 
-SET REFERENTIAL_INTEGRITY TRUE;
-
-drop sequence if exists user_seq;

@@ -1,3 +1,5 @@
+# --- Add access tokens and clients to data
+
 # --- !Ups
 
 create table access_tokens (
@@ -22,16 +24,12 @@ create table clients (
 create unique index idx_access_tokens_token on access_tokens (token);
 
 create sequence access_token_seq start with 1;
-create sequence clients_seq start with 1;
+create sequence client_seq start with 1;
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
-
 drop table if exists access_tokens;
 drop table if exists clients;
-
-SET REFERENTIAL_INTEGRITY TRUE;
 
 drop sequence if exists access_token_seq;
 drop sequence if exists clients_seq;

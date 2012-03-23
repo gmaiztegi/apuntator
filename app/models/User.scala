@@ -1,5 +1,7 @@
 package models
 
+import java.util.{Date}
+
 import play.api.db._
 import play.api.libs.json._
 import play.api.Play.current
@@ -7,9 +9,12 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class User(id: Pk[Long] = NotAssigned, username: String, email: String,
-    plainPassword: Option[String], salt: String,
-    password: String, algorithm: String = User.defaultAlgorithm) {
+case class User(id: Pk[Long] = NotAssigned, username: String,
+    usernameCanonical: String, email: String, emailCanonical: String,
+    enabled: Boolean, plainPassword: Option[String], salt: String,
+    password: String, algorithm: String, createdAt: Date,
+    lastLogin: Option[Date], locked: Boolean,
+    confirmationToken: Option[String], passwordRequestedAt: Option[Date]) {
     
     def checkPassword(password: String): Boolean = {
         val (_, encoded) = User.encodePassword(password, algorithm, salt)
@@ -24,17 +29,27 @@ object User {
     val simple = {
         get[Pk[Long]]("users.id") ~
         str("users.username") ~
+        str("users.username_canonical") ~
         str("users.email") ~
+        str("users.email_canonical") ~
+        bool("users.enabled") ~
         str("users.salt") ~
         str("users.password") ~
-        str("users.algorithm") map {
-            case id~username~email~salt~password~algorithm => User(id, username, email, None, salt, password, algorithm)
+        str("users.algorithm") ~
+        date("users.created_at") ~
+        get[Option[Date]]("users.last_login") ~
+        bool("users.locked") ~
+        get[Option[String]]("users.confirmation_token") ~
+        get[Option[Date]]("password_requested_at") map {
+            case id~username~userCan~email~emailCan~enabled~salt~password~algorithm~created~login~locked~confirmation~requested => {
+                User(id, username, userCan, email, emailCan, enabled, None, salt, password, algorithm, created, login, locked, confirmation, requested)
+            }
         }
     }
     
     def apply(username: String, email: String, plainPassword: String): User = {
         val (salt, hash) = User.encodePassword(plainPassword)
-        User(NotAssigned, username, email, Some(plainPassword), salt, hash, defaultAlgorithm)
+        User(NotAssigned, username, username.toLowerCase, email, email.toLowerCase, false, Some(plainPassword), salt, hash, defaultAlgorithm, new Date(), None, false, Some(generateSalt(128)), None)
     }
 
     def all(): List[User] = {
@@ -65,15 +80,25 @@ object User {
                 """
                 insert into users values (
                     nextval('user_seq'),
-                    {username}, {email}, {salt}, {password}, {algorithm}
+                    {username}, {userCan}, {email}, {emailCan}, {enabled},
+                    {salt}, {password}, {algorithm}, {created}, {login},
+                    {locked}, {confirmation}, {requested}
                 )
                 """
             ).on(
-                'username -> user.username, 
+                'username -> user.username,
+                'userCan -> user.usernameCanonical,
                 'email -> user.email,
+                'emailCan -> user.emailCanonical,
+                'enabled -> user.enabled,
                 'salt -> user.salt,
                 'password -> user.password,
-                'algorithm -> user.algorithm
+                'algorithm -> user.algorithm,
+                'created -> user.createdAt,
+                'login -> user.lastLogin,
+                'locked -> user.locked,
+                'confirmation -> user.confirmationToken,
+                'requested -> user.passwordRequestedAt
             ).executeInsert()
         }
     }
@@ -83,16 +108,28 @@ object User {
             SQL(
                 """
                 update users
-                set username = {username}, email = {email}, salt = {salt}, password = {password}, algorithm = {algorithm}
+                set username = {username}, username_canonical = {userCan},
+                email = {email}, email_canonical = {emailCan}, enabled = {enabled},
+                salt = {salt}, password = {password}, algorithm = {algorithm},
+                created_at = {created}, last_login = {login}, locked = {locked},
+                confirmation_token = {confirmation}, password_requested_at = {requested}
                 where id = {id}
                 """
             ).on(
                 'id -> id,
-                'username -> user.username, 
+                'username -> user.username,
+                'userCan -> user.usernameCanonical,
                 'email -> user.email,
+                'emailCan -> user.emailCanonical,
+                'enabled -> user.enabled,
                 'salt -> user.salt,
                 'password -> user.password,
-                'algorithm -> user.algorithm
+                'algorithm -> user.algorithm,
+                'created -> user.createdAt,
+                'login -> user.lastLogin,
+                'locked -> user.locked,
+                'confirmation -> user.confirmationToken,
+                'requested -> user.passwordRequestedAt
             ).executeUpdate()
         }
     }
@@ -104,23 +141,25 @@ object User {
     }
     
     def usernameExists(username: String): Boolean = {
+        val canonicalized = username.toLowerCase
         DB.withConnection { implicit connection =>
             val row = SQL(
                 """
                 select count(*) as c from users where username = {username}
                 """
-            ).onParams(username).single
+            ).onParams(canonicalized).single
             row[Long]("c") > 0
         }
     }
     
     def emailExists(email: String): Boolean = {
+        val canonicalized = email.toLowerCase
         DB.withConnection { implicit connection =>
             val row = SQL(
                 """
                 select count(*) as c from users where email = {email}
                 """
-            ).onParams(email).single
+            ).onParams(canonicalized).single
             row[Long]("c") > 0
         }
     }
@@ -131,8 +170,8 @@ object User {
         (salt, hash)
     }
     
-    def generateSalt(): String = {
-        val bigint = new java.math.BigInteger(256, new java.security.SecureRandom)
+    def generateSalt(bits: Int = 256): String = {
+        val bigint = new java.math.BigInteger(bits, new java.security.SecureRandom)
         bigint.toString(36)
     }
     
@@ -145,9 +184,9 @@ object User {
         def writes(u: User): JsValue = JsObject(List(
             "id" -> JsNumber(u.id.get),
             "username" -> JsString(u.username),
+            "username_canonical" -> JsString(u.usernameCanonical),
             "email" -> JsString(u.email),
-            "salt" -> JsString(u.salt),
-            "password" -> JsString(u.password)
+            "registered_at" -> JsString(u.createdAt.toString)
         ))
     }
 }

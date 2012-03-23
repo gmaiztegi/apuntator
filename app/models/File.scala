@@ -1,5 +1,7 @@
 package models
 
+import java.util.{Date}
+
 import play.api.db._
 import play.api.libs.json._
 import play.api.Play.current
@@ -7,16 +9,28 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class File(id: Pk[Long] = NotAssigned, name:String, description:String, path:String)
+case class File(id: Pk[Long] = NotAssigned, name:String, description:String,
+    randomId: String, filename:String, userId: Long, createdAt: Date,
+    updatedAt: Date)
 
 object File {
+
+    def apply(name: String, description: String, filename: String, uId: Long): File = {
+        val rand = User.generateSalt(128)
+        File(NotAssigned, name, description, rand, filename, uId, new Date, new Date)
+    }
     
     val simple = {
         get[Pk[Long]]("files.id") ~
         str("files.name") ~
         str("files.description") ~
-        str("files.path") map {
-            case id~name~descr~path => File(id, name, descr, path)
+        str("files.random_id") ~
+        str("files.filename") ~
+        long("files.user_id") ~
+        date("files.created_at") ~
+        date("files.updated_at") map {
+            case id~name~descr~rand~path~uid~created~updated => 
+                File(id, name, descr, rand, path, uid, created, updated)
         }
     }
     
@@ -38,13 +52,18 @@ object File {
                 """
                 insert into files values (
                     nextval('file_seq'),
-                    {name}, {description}, {path}
+                    {name}, {description}, {rand}, {filename}, {uid},
+                    {created}, {updated}
                 )
                 """
             ).on(
                 'name -> file.name,
                 'description -> file.description,
-                'path -> file.path
+                'rand -> file.randomId,
+                'filename -> file.filename,
+                'uid -> file.userId,
+                'created -> file.createdAt,
+                'updated -> file.updatedAt
             ).executeInsert()
         }
     }
@@ -54,14 +73,14 @@ object File {
             SQL(
                 """
                 update files
-                set name = {name}, description = {descr}, path = {path}
+                set name = {name}, description = {descr}, filename = {filename}
                 where id = {id}
                 """
             ).on(
                 'id -> id,
                 'name -> file.name,
                 'descr -> file.description,
-                'path -> file.path
+                'filename -> file.filename
             ).executeUpdate()
         }
     }
@@ -78,16 +97,17 @@ object File {
 
     implicit object FileFormat extends Format[File] {
         def reads(json: JsValue): File = File(
-            (json \ "id").asOpt[Long].map {id => Id(id)}.getOrElse(NotAssigned),
             (json \ "name").as[String],
             (json \ "description").as[String],
-            (json \ "path").as[String]
+            (json \ "path").as[String],
+            (json \ "user_id").as[Long]
         )
-        def writes(f:File): JsValue = JsObject(List(
+        def writes(f:File): JsValue = JsObject(Seq(
             "id" -> JsNumber(f.id.get),
             "name" -> JsString(f.name),
             "description" -> JsString(f.description),
-            "path" -> JsString("http://apuntator.s3.amazonaws.com/files/"+f.path)
+            "path" -> JsString("http://"+utils.Aws.bucket+".s3.amazonaws.com/files/"+f.randomId+"/"+f.filename),
+            "created_at" -> JsString(f.createdAt.toString)
         ))
     }
 }

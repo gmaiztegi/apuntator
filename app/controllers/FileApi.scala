@@ -2,27 +2,27 @@ package controllers
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.concurrent._
 import play.api.libs.json._
 import play.api._
 import play.api.mvc._
-import play.api.Play.current
 
 import views._
 import models._
 import utils._
+import utils.Security._
 
 import anorm._
 
 object FileApi extends Controller {
     
-    val fileForm = Form(
+    def uploadForm(filename: String, uId: Long): Form[File] = Form(
         mapping(
-            "id" -> ignored(NotAssigned:Pk[Long]),
             "name" -> nonEmptyText,
             "description" -> text,
-            "path" -> ignored(null:String)
-        )(File.apply)(File.unapply)
+            "filename" -> ignored(filename),
+            "user_id" -> ignored(uId)
+        )(File.apply)(
+        (file: File) => Some(file.name, file.description, file.filename, file.userId))
     )
     
     val updateForm = Form(
@@ -37,24 +37,25 @@ object FileApi extends Controller {
         Ok(Json.toJson(files))
     }
     
-    def create = Action(parse.multipartFormData) { implicit request =>
-        fileForm.bindFromRequest.fold(
-            (formWithErrors => BadRequest("Error!")),
-            (file => {
-                request.body.file("file").map { upload =>
-                    val filename = upload.filename
-                    Akka.future {
-                        Aws.upload("files", upload)
-                        upload.ref.finalize
-                        Logger.info("File \""+filename+"\" uploaded to Amazon S3.")
-                    }
-                    File.insert(File(NotAssigned, file.name, file.description, filename)).map { id =>
-                        val newfile = file.copy(id = anorm.Id(id), path = filename)
-                        Accepted(views.html.iframehack(Json.toJson(newfile)))
-                    }.getOrElse(BadRequest("Error!"))
-                }.getOrElse(BadRequest("Missing file"))
-            })
-        )
+    def create = Authenticated { auth =>
+        Action(parse.multipartFormData) { implicit request =>
+            request.body.file("file").map { upload =>
+                val userId = auth.user.id.get
+                val filename = upload.filename
+                uploadForm(filename, userId).bindFromRequest.fold(
+                    (formWithErrors => BadRequest("Error!")),
+                    (file => {
+                        Aws.upload(upload, Some("files/"+file.randomId)).map { _ =>
+                            upload.ref.finalize
+                        }
+                        File.insert(file).map { id =>
+                            val newfile = file.copy(id = anorm.Id(id))
+                            Accepted(views.html.iframehack(Json.toJson(newfile)))
+                        }.getOrElse(BadRequest("Error!"))
+                    })
+                )
+            }.getOrElse(BadRequest("Missing file"))
+        }
     }
     
     def read(id: Long) = Action {

@@ -4,7 +4,7 @@ require.config {
         order: 'libs/require/order'
         text: 'libs/require/text'
         use: 'libs/require/use'
-        jquery: 'libs/jquery/jquery-1.7.1'
+        jquery: 'libs/jquery/jquery'
         template: 'libs/jquery/jquery.tmpl'
         underscore: 'libs/underscore/underscore'
         backbone: 'libs/backbone/backbone-0.9.2'

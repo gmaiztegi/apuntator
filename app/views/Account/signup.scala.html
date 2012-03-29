@@ -1,0 +1,36 @@
+@(form: Form[User])
+@anonymous("Registro") {
+    <div class="row">
+        <div class="span8 offset2">
+            <h2>Regístrate en Apuntator</h2>
+            <form class="form-horizontal" action="@routes.Account.signupPost" method="post">
+                <fieldset>
+                    <div class="control-group@if(form("username").hasErrors){ error}">
+                        <label class="control-label" for="username">Usuario</label>
+                        <div class="controls">
+                            <input type="text" name="username" id="username" value="@form("username").value.getOrElse("")" />
+                            <span class="help-inline">@form("username").error.map(_.message).getOrElse("")</span>
+                        </div>
+                    </div>
+                    <div class="control-group@if(form("email").hasErrors){ error}">
+                        <label class="control-label" for="email">Email</label>
+                        <div class="controls">
+                            <input type="email" name="email" id="email" value="@form("email").value.getOrElse("")" />
+                            <span class="help-inline">@form("email").error.map(_.message).getOrElse("")</span>
+                        </div>
+                    </div>
+                    <div class="control-group@if(form("password").hasErrors){ error}">
+                        <label class="control-label" for="password">Password</label>
+                        <div class="controls">
+                            <input type="password" name="password" id="password" />
+                            <span class="help-inline">@form("password").error.map(_.message).getOrElse("")</span>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enviar registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

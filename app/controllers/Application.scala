@@ -12,5 +12,5 @@ object Application extends Controller {
     	Action {
         	Ok(views.html.index())
     	}
-	}, _ => Ok(views.html.index()))
+	}, _ => Ok(views.html.anonindex()))
 }

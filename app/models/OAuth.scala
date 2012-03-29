@@ -22,7 +22,7 @@ case class Authentication(user: User, token: AccessToken, client: Option[Client]
 
 object AccessToken {
     
-    val defaultExpirityMillis: Long = 7 * 24 * 60 * 60 * 1000
+    val defaultExpirityMillis: Long = 24 * 60 * 60 * 1000
     
     // -- Parsers
     
@@ -36,6 +36,11 @@ object AccessToken {
         }
     }
     
+    def apply(userId: Long, expires: Long): AccessToken = {
+        AccessToken(NotAssigned, None, userId, generate,
+            new Date(System.currentTimeMillis + expires))
+    }
+
     // -- Queries
     
     def insert(token: AccessToken) = {

@@ -1,0 +1,21 @@
+@(errors: Boolean, callbackUrl: Option[String] = None)
+@anonymous("Iniciar sesión") {
+    <div class="row">
+        <div class="span8 offset2">
+            @if(errors){
+            <div class="alert alert-error">Usuario y/o contraseña inválidos</div>
+            }
+            <h2>Iniciar sesión</h2>
+            <form action="@(routes.Account.loginPost.url+callbackUrl.map("?callback="+_).getOrElse(""))" method="post">
+                <label for="username">Usuario</label>
+                <input id="username" name="username" type="text" />
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" />
+                <label class="checkbox">
+                    <input name="remember_me" type="checkbox" /> Recordar
+                </label>
+                <button type="submit" class="btn btn-primary">Hacer login</button>
+            </form>
+        </div>
+    </div>
+}

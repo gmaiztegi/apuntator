@@ -1,0 +1,30 @@
+@anonymous("") {
+    <div class="row">
+        <div class="span8">
+            <div class="hero-unit">
+                <h1>Apuntator</h1>
+                <p>Apuntator es un repositorio para subir tus propios apuntes y compartirlos con el resto de la gente. Así ayudarás a otros a aprender y formarse.</p>
+                <a href="#" class="btn btn-primary btn-large">Más información</a>
+            </div>
+        </div>
+        <div class="span4">
+            <form action="@routes.Account.loginPost" method="post" class="well">
+                <fieldset>
+                    <input name="username" type="text" placeholder="Usuario" />
+                    <input name="password" type="password" placeholder="Contraseña" />
+                    <label class="checkbox">
+                        <input name="remember_me" type="checkbox" /> Recordar
+                    </label>
+                </fieldset>
+                <button class="btn" type="submit">Iniciar sesión</button>
+            </form>
+            <form action="@routes.Account.signup" method="post" class="well">
+                <h2>¿Eres nuevo?</h2>
+                <div><input name="username" type="text" placeholder="Nombre de usuario" /></div>
+                <div><input name="email" type="email" placeholder="Email" /></div>
+                <div><input name="password" type="password" placeholder="Contraseña" /></div>
+                <button class="btn btn-primary" type="submit">Enviar registro</div>
+            </form>
+        </div>
+    </div>
+}

@@ -2,7 +2,15 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-POST    /login                      controllers.OAuth.login
+GET     /login                      controllers.Account.login
+GET     /login/error                controllers.Account.loginError
+POST    /login                      controllers.Account.loginPost
+GET     /logout                     controllers.Account.logout
+POST    /logout                     controllers.Account.logout
+GET     /signup                     controllers.Account.signup
+POST    /signup                     controllers.Account.signupPost
+
+#POST    /account/create             controllers.Account.signupPost
 #POST    /oauth/token                controllers.OAuth.token
 
 GET     /api/files                  controllers.FileApi.list
@@ -12,7 +20,7 @@ PUT     /api/files/:id              controllers.FileApi.update(id: Long)
 DELETE  /api/files/:id              controllers.FileApi.delete(id: Long)
 
 GET     /api/users                  controllers.UserApi.list
-POST    /api/users                  controllers.UserApi.create
+#POST    /api/users                  controllers.UserApi.create
 GET     /api/users/:id              controllers.UserApi.read(id: Long)
 PUT     /api/users/:id              controllers.UserApi.update(id: Long)
 DELETE  /api/users/:id              controllers.UserApi.delete(id: Long)

@@ -1,5 +1,5 @@
 define [
-    'use!marionette'
+    'marionette'
     'views/FileView'
 ], (Marionette, FileView) ->
     class FileTable extends Marionette.CollectionView

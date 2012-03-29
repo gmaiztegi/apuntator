@@ -1,4 +1,4 @@
-define ['use!marionette', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView'],
+define ['marionette', 'ApuntatorApp', 'views/FilesView', 'views/RegisterView'],
 (Marionette, App, FilesView, RegisterView) ->
     class Router extends Marionette.AppRouter
         appRoutes:

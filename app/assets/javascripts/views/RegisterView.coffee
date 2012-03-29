@@ -1,4 +1,4 @@
-define ['use!marionette', 'jquery', 'views/MenuView', 'models/MenuItem'],
+define ['marionette', 'jquery', 'views/MenuView', 'models/MenuItem'],
 (Marionette, $, MenuView, MenuItem) ->
     class RegisterView extends Marionette.ItemView
         

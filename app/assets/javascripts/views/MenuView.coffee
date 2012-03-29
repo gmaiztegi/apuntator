@@ -1,5 +1,5 @@
 define [
-	'use!marionette'
+	'marionette'
 	'collections/Menu'
 	'views/MenuItem'
 ], (Marionette, Menu, MenuItem) ->

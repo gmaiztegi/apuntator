@@ -1,4 +1,4 @@
-define ['use!backbone', 'models/File'], (Backbone, File) ->
+define ['backbone', 'models/File'], (Backbone, File) ->
     class FileList extends Backbone.Collection
         model: File
         url: 'api/files'

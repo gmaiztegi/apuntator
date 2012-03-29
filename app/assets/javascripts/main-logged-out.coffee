@@ -6,8 +6,8 @@ require.config {
         use: 'libs/require/use'
         jquery: 'libs/jquery/jquery-1.7.1'
         template: 'libs/jquery/jquery.tmpl'
-        underscore: 'libs/underscore/underscore-0'
-        backbone: 'libs/backbone/backbone-0.9.1'
+        underscore: 'libs/underscore/underscore'
+        backbone: 'libs/backbone/backbone-0.9.2'
         marionette: 'libs/backbone/backbone.marionette'
         handlebars: 'libs/handlebars/handlebars'
         polyfiller: 'libs/webshims/polyfiller'
@@ -16,20 +16,6 @@ require.config {
     use:
         template:
             deps: ['jquery']
-
-        backbone:
-            deps: ['use!underscore', 'jquery']
-            attach: ->
-                Backbone
-
-        marionette:
-            deps: ['use!backbone']
-            attach: ->
-                Backbone.Marionette
-
-        underscore:
-            attach: ->
-                _
 }
 
 require ['app-logged-out'], (App) ->

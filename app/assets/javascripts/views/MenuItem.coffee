@@ -1,4 +1,4 @@
-define ['use!marionette'], (Marionette) ->
+define ['marionette'], (Marionette) ->
 	class MenuItem extends Marionette.ItemView
 		template: '#tmpl-menu-item'
 		tagName: 'li'

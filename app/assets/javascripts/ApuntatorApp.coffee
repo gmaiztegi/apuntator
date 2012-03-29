@@ -1,4 +1,4 @@
-define ['use!marionette'], (Marionette) ->
+define ['marionette'], (Marionette) ->
     app = new Marionette.Application
     app.addRegions
         menu: '#menu'

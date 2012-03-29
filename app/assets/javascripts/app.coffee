@@ -1,11 +1,11 @@
 define [
     'jquery'
-    'use!backbone'
+    'backbone'
     'router'
     'ApuntatorApp'
     'views/MenuView'
     'polyfiller'
-    'use!marionette'
+    'marionette'
     'use!template'
 ], ($, Backbone, Router, App, MenuView) ->
     initialize = ->
@@ -23,7 +23,7 @@ define [
         basePath: '/assets/javascripts/libs/webshims/shims/'
     }
     
-    Backbone.Marionette.ItemView.prototype.renderTemplate = (template, data) ->
+    Backbone.Marionette.Renderer.renderTemplate = (template, data) ->
         $.tmpl template, data
     
     $.webshims.polyfill()

@@ -1,4 +1,4 @@
-define ['use!backbone', 'models/MenuItem'], (Backbone, MenuItem) ->
+define ['backbone', 'models/MenuItem'], (Backbone, MenuItem) ->
 	class Menu extends Backbone.Collection
 		model: MenuItem
 

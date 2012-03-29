@@ -1,5 +1,5 @@
 define [
-    'use!marionette'
+    'marionette'
     'jquery'
     'collections/FileList'
     'views/FileTable'

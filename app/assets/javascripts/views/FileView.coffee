@@ -1,4 +1,4 @@
-define ['use!marionette', 'jquery'],
+define ['marionette', 'jquery'],
 (Marionette, $) ->
         class FileView extends Marionette.ItemView
             tagName: 'tr'

@@ -1,5 +1,5 @@
 define [
-    'use!backbone'
+    'backbone'
     ], (Backbone) ->
         class File extends Backbone.Model
             urlRoot: 'api/files'

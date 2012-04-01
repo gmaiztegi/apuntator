@@ -175,12 +175,7 @@ object User {
         bigint.toString(36)
     }
     
-    implicit object UserFormat extends Format[User] {
-        def reads(json: JsValue): User = User(
-            (json \ "username").as[String],
-            (json \ "email").as[String],
-            (json \ "password").as[String]
-        )
+    implicit object UserWrites extends Writes[User] {
         def writes(u: User): JsValue = JsObject(List(
             "id" -> JsNumber(u.id.get),
             "username" -> JsString(u.username),

@@ -95,13 +95,7 @@ object File {
         }
     }
 
-    implicit object FileFormat extends Format[File] {
-        def reads(json: JsValue): File = File(
-            (json \ "name").as[String],
-            (json \ "description").as[String],
-            (json \ "path").as[String],
-            (json \ "user_id").as[Long]
-        )
+    implicit object FileWrites extends Writes[File] {
         def writes(f:File): JsValue = JsObject(Seq(
             "id" -> JsNumber(f.id.get),
             "name" -> JsString(f.name),

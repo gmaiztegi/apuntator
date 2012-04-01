@@ -62,7 +62,7 @@ object Account extends Controller {
                 val (username, password, remember) = data
                 User.findByUsername(username).filter(_.checkPassword(password)).map { user =>
                     val expires = AccessToken.defaultExpirityMillis
-                    val token = AccessToken(user.id.get, expires)
+                    val token = AccessToken(None, user.id.get)
                     AccessToken.insert(token)
                     Redirect(getCallbackUrl.getOrElse("/")).withCookies(
                         Cookie(utils.Security.access_token, token.token, (expires/1000).toInt)

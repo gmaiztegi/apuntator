@@ -9,20 +9,38 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
+trait Token {
+    val clientId: Option[Long]
+    val userId: Long
+    val token: String
+    val expiresAt: Date
+}
+
 case class AccessToken(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
-    token: String, expiresAt: Date)
+    token: String, expiresAt: Date) extends Token
+
+case class RefreshToken(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
+    currentTokenId: Option[Long], token: String, expiresAt: Date) extends Token
 
 case class AuthCode(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
-    token: String, expiresAt: Date, redirectUri: Option[String] = None)
+    token: String, expiresAt: Date, redirectUri: Option[String] = None) extends Token
 
 case class Client(id: Pk[Long] = NotAssigned, randomId: String, name: String,
     secret: Option[String] = None, grantTypes: List[String] = Nil)
 
 case class Authentication(user: User, token: AccessToken, client: Option[Client])
 
-object AccessToken {
+object Token {
+
+    def generate(bits: Int = 128) = {
+        val bigint = new java.math.BigInteger(bits, new java.security.SecureRandom)
+        bigint.toString(36)
+    }
+}
+
+object AccessToken extends  {
     
-    val defaultExpirityMillis: Long = 24 * 60 * 60 * 1000
+    val defaultExpirityMillis: Long = 60 * 60 * 1000
     
     // -- Parsers
     
@@ -36,9 +54,9 @@ object AccessToken {
         }
     }
     
-    def apply(userId: Long, expires: Long): AccessToken = {
-        AccessToken(NotAssigned, None, userId, generate,
-            new Date(System.currentTimeMillis + expires))
+    def apply(clientId: Option[Long], userId: Long): AccessToken = {
+        AccessToken(NotAssigned, clientId, userId, Token.generate(),
+            new Date(System.currentTimeMillis + defaultExpirityMillis))
     }
 
     // -- Queries
@@ -61,19 +79,42 @@ object AccessToken {
         }
     }
     
+    def delete(id: Long) = {
+        DB.withConnection { implicit connection =>
+            SQL("delete from access_tokens where id = @id").onParams(id).executeUpdate
+        }
+    }
+
     def deleteExpired = {
         DB.withConnection { implicit connection =>
             SQL("delete from access_tokens where date < now()").executeUpdate
         }
     }
-    
-    def generate = {
-        val bigint = new java.math.BigInteger(128, new java.security.SecureRandom)
-        bigint.toString(36)
+}
+
+object RefreshToken {
+
+    val defaultExpirityMillis: Long = 24 * 60 * 60 * 1000
+
+    val simple = {
+        get[Pk[Long]]("refresh_tokens.id") ~
+        get[Option[Long]]("refresh_tokens.client_id") ~
+        get[Long]("refresh_tokens.user_id") ~
+        get[Option[Long]]("refresh_tokens.current_token_id") ~
+        get[String]("refresh_tokens.token") ~
+        get[Date]("refresh_tokens.expires_at") map {
+            case id~cId~uId~cTId~token~exp => RefreshToken(id, cId, uId, cTId, token, exp)
+        }
+    }
+
+    def apply(clientId: Option[Long], userId: Long, currentTokenId: Option[Long]): RefreshToken = {
+        RefreshToken(NotAssigned, clientId, userId, currentTokenId, Token.generate(),
+            new Date(System.currentTimeMillis + defaultExpirityMillis))
     }
 }
 
 object Client {
+
     val simple = {
         get[Pk[Long]]("clients.id") ~
         get[String]("clients.random_id") ~

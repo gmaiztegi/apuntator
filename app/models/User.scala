@@ -17,7 +17,7 @@ case class User(id: Pk[Long] = NotAssigned, username: String,
     confirmationToken: Option[String], passwordRequestedAt: Option[Date]) {
     
     def checkPassword(password: String): Boolean = {
-        val (_, encoded) = User.encodePassword(password, algorithm, salt)
+        val (_, encoded) = User.encodePassword(password, salt, algorithm)
         this.password == encoded
     }
 }
@@ -164,9 +164,9 @@ object User {
         }
     }
     
-    def encodePassword(password: String, algorithm: String = defaultAlgorithm, salt: String = generateSalt()) = {
+    def encodePassword(password: String, salt: String = generateSalt(), algorithm: String = defaultAlgorithm) = {
         val digest = java.security.MessageDigest.getInstance(algorithm)
-        val hash = digest.digest(password.getBytes).map("%02X" format _).mkString
+        val hash = digest.digest((salt+password).getBytes).map("%02X" format _).mkString
         (salt, hash)
     }
     

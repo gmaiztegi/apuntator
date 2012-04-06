@@ -8,7 +8,6 @@ import play.api.Logger
 import play.api.mvc._
 
 import models._
-import utils.Security._
 
 object Account extends Controller {
 
@@ -65,7 +64,7 @@ object Account extends Controller {
                     val token = AccessToken(None, user.id.get)
                     AccessToken.insert(token)
                     Redirect(getCallbackUrl.getOrElse("/")).withCookies(
-                        Cookie(utils.Security.access_token, token.token, (expires/1000).toInt)
+                        Cookie(utils.Secured.access_token, token.token, (expires/1000).toInt)
                     )
                 }.getOrElse(Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)))
             }
@@ -73,7 +72,7 @@ object Account extends Controller {
     }
 
     def logout() = Action {
-        Redirect(routes.Application.index).discardingCookies(utils.Security.access_token)
+        Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token)
     }
 
     def signup() = Action { implicit request =>

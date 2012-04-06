@@ -9,11 +9,10 @@ import play.api.mvc._
 import views._
 import models._
 import utils._
-import utils.Security._
 
 import anorm._
 
-object FileApi extends Controller {
+object FileApi extends Controller with Secured {
     
     def uploadForm(filename: String, uId: Long): Form[File] = Form(
         mapping(
@@ -37,9 +36,9 @@ object FileApi extends Controller {
         Ok(Json.toJson(files))
     }
     
-    def create = Authenticated { auth =>
-        Action(parse.multipartFormData) { implicit request =>
-            request.body.file("file").map { upload =>
+    def create = IsAuthenticated { auth => implicit request =>
+        request.body.asMultipartFormData.map { body =>
+            body.file("file").map { upload =>
                 val userId = auth.user.id.get
                 val filename = upload.filename
                 uploadForm(filename, userId).bindFromRequest.fold(
@@ -55,7 +54,7 @@ object FileApi extends Controller {
                     })
                 )
             }.getOrElse(BadRequest("Missing file"))
-        }
+        }.getOrElse(BadRequest("Missing file"))
     }
     
     def read(id: Long) = Action {

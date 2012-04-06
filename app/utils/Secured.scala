@@ -20,6 +20,8 @@ trait Secured {
         Unauthorized(views.html.defaultpages.unauthorized())
     }
 
+    private val defaultAuthed = Action(Redirect("/"))
+
     def MayAuthenticate(f: => Authentication => Request[AnyContent] => Result, g: Action[AnyContent]) = Authenticated(getAuth, g) { user =>
         Action(request => f(user)(request))
     }
@@ -30,6 +32,14 @@ trait Secured {
 
     def IsAuthenticated(f: => Authentication => Request[AnyContent] => Result) = Authenticated(getAuth, defaultUnAuth) { user =>
         Action(request => f(user)(request))
+    }
+
+    def IsNotAuthenticated(f: Action[AnyContent]) = Authenticated(getAuth, f) { _ =>
+        defaultAuthed
+    }
+
+    def IsNotAuthenticated(f: RequestHeader => Result) = Authenticated(getAuth, f) { _ =>
+        defaultAuthed
     }
 
     def Authenticated[A](

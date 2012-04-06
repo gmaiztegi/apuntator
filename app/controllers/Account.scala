@@ -8,8 +8,9 @@ import play.api.Logger
 import play.api.mvc._
 
 import models._
+import utils._
 
-object Account extends Controller {
+object Account extends Controller with Secured {
 
     val loginForm = Form(
         tuple(
@@ -36,25 +37,25 @@ object Account extends Controller {
         )
     )
 
-    def getCallbackUrl()(implicit request: RequestHeader): Option[String] = {
+    private def getCallbackUrl()(implicit request: RequestHeader): Option[String] = {
         request.queryString.get("callback").map(_.head)
     }
 
-    def getCallbackMap(callback: Option[String]): Map[String, Seq[String]] = {
+    private def getCallbackMap(callback: Option[String]): Map[String, Seq[String]] = {
         callback.map { callbackUrl =>
             Map("callback" -> Seq(callbackUrl))
         }.getOrElse(Map.empty)
     }
 
-    def login() = Action { implicit request =>
+    def login() = IsNotAuthenticated { implicit request =>
         Ok(views.html.Account.login(false, getCallbackUrl))
     }
 
-    def loginError() = Action { implicit request =>
+    def loginError() = IsNotAuthenticated { implicit request =>
         Ok(views.html.Account.login(true, getCallbackUrl))
     }
 
-    def loginPost() = Action { implicit request =>
+    def loginPost() = IsNotAuthenticated(Action { implicit request =>
         loginForm.bindFromRequest.fold(
             formWithErrors => Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)),
             data => {
@@ -69,17 +70,17 @@ object Account extends Controller {
                 }.getOrElse(Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)))
             }
         )
-    }
+    })
 
     def logout() = Action {
         Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token)
     }
 
-    def signup() = Action { implicit request =>
+    def signup() = IsNotAuthenticated { _ =>
         Ok(views.html.Account.signup(signupForm))
-    } 
+    }
 
-    def signupPost() = Action { implicit request =>
+    def signupPost() = IsNotAuthenticated(Action { implicit request =>
         signupForm.bindFromRequest.fold(
             formWithErrors => Ok(views.html.Account.signup(formWithErrors)),
             user => {
@@ -89,5 +90,5 @@ object Account extends Controller {
                 }.getOrElse(Ok(views.html.Account.signup(signupForm.fill(user))))
             }
         )
-    }
+    })
 }

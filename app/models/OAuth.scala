@@ -87,7 +87,7 @@ object AccessToken extends  {
 
     def deleteExpired = {
         DB.withConnection { implicit connection =>
-            SQL("delete from access_tokens where date < now()").executeUpdate
+            SQL("delete from access_tokens where expires_at < now()").executeUpdate
         }
     }
 }

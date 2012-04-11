@@ -1,5 +1,5 @@
-@(form: Form[User])
-@anonymous("Registro") {
+@(token: String, form: Form[User])
+@anonymous("Registro", token) {
     <div class="row">
         <div class="span8 offset2">
             <h2>Regístrate en Apuntator</h2>
@@ -27,6 +27,7 @@
                         </div>
                     </div>
                 </fieldset>
+                <input name="post_authenticity_token" type="hidden" value="@token" />
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Enviar registro</button>
                 </div>

@@ -1,4 +1,5 @@
-@anonymous("") {
+@(token: String)
+@anonymous("", token) {
     <div class="row">
         <div class="span8">
             <div class="hero-unit">
@@ -16,6 +17,7 @@
                         <input name="remember_me" type="checkbox" /> Recordar
                     </label>
                 </fieldset>
+                <input name="post_authenticity_token" type="hidden" value="@token" />
                 <button class="btn" type="submit">Iniciar sesión</button>
             </form>
             <form action="@routes.Account.signup" method="post" class="well">
@@ -23,6 +25,7 @@
                 <div><input name="username" type="text" placeholder="Nombre de usuario" /></div>
                 <div><input name="email" type="email" placeholder="Email" /></div>
                 <div><input name="password" type="password" placeholder="Contraseña" /></div>
+                <input name="post_authenticity_token" type="hidden" value="@token" />
                 <button class="btn btn-primary" type="submit">Enviar registro</div>
             </form>
         </div>

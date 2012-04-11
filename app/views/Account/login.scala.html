@@ -1,5 +1,5 @@
-@(errors: Boolean, callbackUrl: Option[String] = None)
-@anonymous("Iniciar sesión") {
+@(token: String, errors: Boolean, callbackUrl: Option[String] = None)
+@anonymous("Iniciar sesión", token) {
     <div class="row">
         <div class="span8 offset2">
             @if(errors){
@@ -14,6 +14,7 @@
                 <label class="checkbox">
                     <input name="remember_me" type="checkbox" /> Recordar
                 </label>
+                <input name="post_authenticity_token" type="hidden" value="@token" />
                 <button type="submit" class="btn btn-primary">Hacer login</button>
             </form>
         </div>

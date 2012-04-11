@@ -48,11 +48,11 @@ object Account extends Controller with Secured {
     }
 
     def login() = IsNotAuthenticated { implicit request =>
-        Ok(views.html.Account.login(false, getCallbackUrl))
+        Ok(views.html.Account.login(authenticityToken, false, getCallbackUrl))
     }
 
     def loginError() = IsNotAuthenticated { implicit request =>
-        Ok(views.html.Account.login(true, getCallbackUrl))
+        Ok(views.html.Account.login(authenticityToken, true, getCallbackUrl))
     }
 
     def loginPost() = IsNotAuthenticated(Action { implicit request =>
@@ -76,18 +76,18 @@ object Account extends Controller with Secured {
         Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token)
     }
 
-    def signup() = IsNotAuthenticated { _ =>
-        Ok(views.html.Account.signup(signupForm))
+    def signup() = IsNotAuthenticated { implicit req =>
+        Ok(views.html.Account.signup(authenticityToken, signupForm))
     }
 
     def signupPost() = IsNotAuthenticated(Action { implicit request =>
         signupForm.bindFromRequest.fold(
-            formWithErrors => Ok(views.html.Account.signup(formWithErrors)),
+            formWithErrors => Ok(views.html.Account.signup(authenticityToken, formWithErrors)),
             user => {
                 User.insert(user).map { id =>
                     val newuser = user.copy(id = anorm.Id(id))
                     Redirect(routes.Application.index)
-                }.getOrElse(Ok(views.html.Account.signup(signupForm.fill(user))))
+                }.getOrElse(Ok(views.html.Account.signup(authenticityToken, signupForm.fill(user))))
             }
         )
     })

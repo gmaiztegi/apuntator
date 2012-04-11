@@ -1,4 +1,4 @@
-@(title: String = "")(content: Html)(header: Html = Html.empty)
+@(title: String = "", token: String)(content: Html)(header: Html = Html.empty)
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="es"><![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="es"><![endif]-->
@@ -27,6 +27,6 @@
                 @content
             </div>
         </div>
-        @templates()
+        @templates(token)
     </body>
 </html>

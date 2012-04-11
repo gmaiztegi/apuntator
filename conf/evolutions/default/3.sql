@@ -58,4 +58,4 @@ drop table if exists clients;
 
 drop sequence if exists client_seq;
 drop sequence if exists access_token_seq;
-drop sequence if exists refresh_tokens_seq;
+drop sequence if exists refresh_token_seq;

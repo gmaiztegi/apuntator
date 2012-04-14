@@ -28,7 +28,7 @@ trait Secured {
         addToken(req)(Redirect("/"))
     }
 
-    private def checkAuthenticity[A](defaultAction: RequestHeader => Result, auth: Option[Authentication])(implicit request: RequestHeader): RequestHeader => Result = {
+    private def checkAuthenticity(defaultAction: RequestHeader => Result, auth: Option[Authentication])(implicit request: RequestHeader): RequestHeader => Result = {
         if (auth.flatMap(_.client).isDefined || sessionAuthenticityToken.isDefined) defaultAction else {
             defaultAction.andThen(addToken)
         }
@@ -48,7 +48,7 @@ trait Secured {
         }
     }
 
-    private def addToken[A](implicit request: RequestHeader): Result => Result = {
+    private def addToken(implicit request: RequestHeader): Result => Result = {
         case result: PlainResult => result.withSession(request.session + (Secured.authenticity_token, User.generateSalt()))
         case AsyncResult(promise) => AsyncResult(promise.map(addToken))
         case result => result

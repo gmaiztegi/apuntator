@@ -22,7 +22,7 @@ trait Secured {
         Unauthorized(views.html.defaultpages.unauthorized())
     }
 
-    private val defaultAuthed = Action(BodyParsers.parse.anyContent)(_ => Redirect("/"))
+    private val defaultAuthed = Action(Redirect("/"))
 
     private def nonAuthentic[A](bodyParser: BodyParser[A])(implicit req: RequestHeader) = Action[A](bodyParser) { _ =>
         addToken(req)(Redirect("/"))

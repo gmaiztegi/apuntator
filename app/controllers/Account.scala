@@ -66,14 +66,18 @@ object Account extends Controller with Secured {
                     AccessToken.insert(token)
                     Redirect(getCallbackUrl.getOrElse("/")).withCookies(
                         Cookie(utils.Secured.access_token, token.token, (expires/1000).toInt)
+                    ).withSession(
+                        session + (Secured.authenticity_token, User.generateSalt())
                     )
                 }.getOrElse(Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)))
             }
         )
     })
 
-    def logout() = Action {
-        Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token)
+    def logout() = Action { implicit request =>
+        Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token).withSession(
+            session + (Secured.authenticity_token, User.generateSalt())
+        )
     }
 
     def signup() = IsNotAuthenticated { implicit req =>

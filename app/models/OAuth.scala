@@ -26,9 +26,14 @@ case class AuthCode(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: 
     token: String, expiresAt: Date, redirectUri: Option[String] = None) extends Token
 
 case class Client(id: Pk[Long] = NotAssigned, randomId: String, name: String,
-    secret: Option[String] = None, grantTypes: List[String] = Nil)
+    secret: Option[String] = None, grantTypes: List[String] = Nil) {
 
-case class Authentication(user: User, token: AccessToken, client: Option[Client])
+    val needsAuthenticityToken: Boolean = this == WebClient
+}
+
+case class Authentication(user: User, token: AccessToken, client: Client)
+
+object WebClient extends Client(NotAssigned, "", "Web")
 
 object Token {
 
@@ -130,7 +135,7 @@ object Authentication {
     // -- Parsers
     
     val simple = User.simple ~ AccessToken.simple ~ (Client.simple ?) map {
-        case user~token~client => Authentication(user, token, client)
+        case user~token~client => Authentication(user, token, client.getOrElse(WebClient))
     }
     
     // -- Queries

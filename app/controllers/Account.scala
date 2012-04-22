@@ -47,15 +47,15 @@ object Account extends Controller with Secured {
         }.getOrElse(Map.empty)
     }
 
-    def login() = IsNotAuthenticated { implicit request =>
-        Ok(views.html.Account.login(authenticityToken, false, getCallbackUrl))
+    def login() = IsNotAuthenticatedTokenized { token => implicit request =>
+        Ok(views.html.Account.login(token, false, getCallbackUrl))
     }
 
-    def loginError() = IsNotAuthenticated { implicit request =>
-        Ok(views.html.Account.login(authenticityToken, true, getCallbackUrl))
+    def loginError() = IsNotAuthenticatedTokenized { token => implicit request =>
+        Ok(views.html.Account.login(token, true, getCallbackUrl))
     }
 
-    def loginPost() = IsNotAuthenticated(Action { implicit request =>
+    def loginPost() = IsNotAuthenticated { implicit request =>
         loginForm.bindFromRequest.fold(
             formWithErrors => Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)),
             data => {
@@ -72,7 +72,7 @@ object Account extends Controller with Secured {
                 }.getOrElse(Redirect(routes.Account.loginError.url, getCallbackMap(getCallbackUrl)))
             }
         )
-    })
+    }
 
     def logout() = Action { implicit request =>
         Redirect(routes.Application.index).discardingCookies(utils.Secured.access_token).withSession(
@@ -80,19 +80,19 @@ object Account extends Controller with Secured {
         )
     }
 
-    def signup() = IsNotAuthenticated { implicit req =>
-        Ok(views.html.Account.signup(authenticityToken, signupForm))
+    def signup() = IsNotAuthenticatedTokenized { token => _ =>
+        Ok(views.html.Account.signup(token, signupForm))
     }
 
-    def signupPost() = IsNotAuthenticated(Action { implicit request =>
+    def signupPost() = IsNotAuthenticatedTokenized { token => implicit request =>
         signupForm.bindFromRequest.fold(
-            formWithErrors => Ok(views.html.Account.signup(authenticityToken, formWithErrors)),
+            formWithErrors => Ok(views.html.Account.signup(token, formWithErrors)),
             user => {
                 User.insert(user).map { id =>
                     val newuser = user.copy(id = anorm.Id(id))
                     Redirect(routes.Application.index)
-                }.getOrElse(Ok(views.html.Account.signup(authenticityToken, signupForm.fill(user))))
+                }.getOrElse(Ok(views.html.Account.signup(token, signupForm.fill(user))))
             }
         )
-    })
+    }
 }

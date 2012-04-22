@@ -8,10 +8,9 @@ import utils._
 
 object Application extends Controller with Secured {
     
-    def index = MayAuthenticate ({ auth => Action { implicit req =>
-        Ok(views.html.index(authenticityToken))
+    def index = MayAuthenticateTokenized { auth => token => implicit req =>
+        Ok(views.html.index(token))
+    } { token => implicit req =>
+        Ok(views.html.anonindex(token))
     }
-    }, { implicit req =>
-        Ok(views.html.anonindex(authenticityToken))
-    })
 }

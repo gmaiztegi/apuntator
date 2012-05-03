@@ -1,13 +1,13 @@
 define [
     'jquery'
     'backbone'
+    'use!handlebars'
     'router'
     'ApuntatorApp'
     'views/MenuView'
     'polyfiller'
     'marionette'
-    'use!template'
-], ($, Backbone, Router, App, MenuView) ->
+], ($, Backbone, Handlebars, Router, App, MenuView) ->
     initialize = ->
         App.start()
 
@@ -22,9 +22,9 @@ define [
         waitReady: false,
         basePath: '/assets/javascripts/libs/webshims/shims/'
     }
-    
-    Backbone.Marionette.Renderer.renderTemplate = (template, data) ->
-        $.tmpl template, data
+
+    Backbone.Marionette.TemplateCache.compileTemplate = (rawTemplate) ->
+        Handlebars.compile(rawTemplate)
     
     $.webshims.polyfill()
   

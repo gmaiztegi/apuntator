@@ -14,8 +14,9 @@ require.config {
         'iframe-transport': 'libs/jquery/jquery.iframe-transport'
 
     use:
-        template:
-            deps: ['jquery']
+        handlebars:
+            attach: ->
+                Handlebars
 }
 
 require ['app-logged-out'], (App) ->

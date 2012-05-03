@@ -1,5 +1,5 @@
 @(token: String)
-<script id="tmpl-menu" type="template">
+<script id="tmpl-menu" type="text/x-handlebars-template">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
@@ -11,10 +11,10 @@
     </div>
 </div>
 </script>
-<script id="tmpl-menu-item" type="template">
-<a href="#${tag}">${title}</a>
+<script id="tmpl-menu-item" type="text/x-handlebars-template">
+<a href="#<%= tag %>"><%= title %></a>
 </script>
-<script id="tmpl-file-main" type="template">
+<script id="tmpl-file-main" type="text/x-handlebars-template">
 <section id="files">
     <div class="page-header">
         <h1>Archivos <small>Utilizalos con responsabilidad</small></h1>
@@ -70,12 +70,12 @@
     </div>
 </section>
 </script>
-<script id="tmpl-file-row" type="template">
-<td>{{= name }}</td>
-<td>{{= description }}</td>
-<td><a href="{{= path }}">Descargar</a></td>
+<script id="tmpl-file-row" type="text/x-handlebars-template">
+<td>{{ name }}</td>
+<td>{{ description }}</td>
+<td><a href="{{ path }}">Descargar</a></td>
 </script>
-<script id="tmpl-user-signup" type="template">
+<script id="tmpl-user-signup" type="text/x-handlebars-template">
 <section id="register">
     <div class="page-header">
         <h1>Registro <small>Crea un usuario para poder subir archivos</small></h1>

@@ -1,4 +1,9 @@
-@(value: play.api.libs.json.JsValue)
+@(value: play.api.libs.json.JsValue)(implicit request: play.api.mvc.Request[_])
+@import play.api.data.Forms._
+@if(Form("X-Requested-With"->text).bindFromRequest.value.filter(_=="IFrame").isDefined) {
 <textarea data-type="application/json">
 @play.api.libs.json.Json.stringify(value)
 </textarea>
+} else {
+@play.api.libs.json.Json.stringify(value)
+}

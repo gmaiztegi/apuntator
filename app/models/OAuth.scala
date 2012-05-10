@@ -16,22 +16,42 @@ trait Token {
     val expiresAt: Date
 }
 
-case class AccessToken(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
-    token: String, expiresAt: Date) extends Token
+case class AccessToken(
+    id: Pk[Long] = NotAssigned,
+    clientId: Option[Long],
+    userId: Long,
+    token: String,
+    expiresAt: Date) extends Token
 
-case class RefreshToken(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
-    currentTokenId: Option[Long], token: String, expiresAt: Date) extends Token
+case class RefreshToken(
+    id: Pk[Long] = NotAssigned,
+    clientId: Option[Long],
+    userId: Long,
+    currentTokenId: Option[Long],
+    token: String,
+    expiresAt: Date) extends Token
 
-case class AuthCode(id: Pk[Long] = NotAssigned, clientId: Option[Long], userId: Long,
-    token: String, expiresAt: Date, redirectUri: Option[String] = None) extends Token
+case class AuthCode(id: Pk[Long] = NotAssigned,
+    clientId: Option[Long],
+    userId: Long,
+    token: String,
+    expiresAt: Date,
+    redirectUri: Option[String] = None) extends Token
 
-case class Client(id: Pk[Long] = NotAssigned, randomId: String, name: String,
-    secret: Option[String] = None, grantTypes: List[String] = Nil) {
+case class Client(
+    id: Pk[Long] = NotAssigned,
+    randomId: String,
+    name: String,
+    secret: Option[String] = None,
+    grantTypes: List[String] = Nil) {
 
     val needsAuthenticityToken: Boolean = this == WebClient
 }
 
-case class Authentication(user: User, token: AccessToken, client: Client)
+case class Authentication(
+    user: User,
+    token: AccessToken,
+    client: Client)
 
 object WebClient extends Client(NotAssigned, "", "Web")
 

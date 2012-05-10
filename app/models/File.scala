@@ -9,8 +9,14 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class File(id: Pk[Long] = NotAssigned, name:String, description:String,
-    randomId: String, filename:String, userId: Long, createdAt: Date,
+case class File(
+    id: Pk[Long] = NotAssigned,
+    name:String,
+    description:String,
+    randomId: String,
+    filename:String,
+    userId: Long,
+    createdAt: Date,
     updatedAt: Date)
 
 object File {

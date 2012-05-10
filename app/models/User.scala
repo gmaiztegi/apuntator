@@ -9,12 +9,22 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class User(id: Pk[Long] = NotAssigned, username: String,
-    usernameCanonical: String, email: String, emailCanonical: String,
-    enabled: Boolean, plainPassword: Option[String], salt: String,
-    password: String, algorithm: String, createdAt: Date,
-    lastLogin: Option[Date], locked: Boolean,
-    confirmationToken: Option[String], passwordRequestedAt: Option[Date]) {
+case class User(
+    id: Pk[Long] = NotAssigned,
+    username: String,
+    usernameCanonical: String,
+    email: String,
+    emailCanonical: String,
+    enabled: Boolean,
+    plainPassword: Option[String],
+    salt: String,
+    password: String,
+    algorithm: String,
+    createdAt: Date,
+    lastLogin: Option[Date],
+    locked: Boolean,
+    confirmationToken: Option[String],
+    passwordRequestedAt: Option[Date]) {
     
     def checkPassword(password: String): Boolean = {
         val (_, encoded) = User.encodePassword(password, salt, algorithm)

@@ -19,8 +19,13 @@ object Global extends GlobalSettings {
         val period = Duration(30, TimeUnit.MINUTES)
 
         tasks += Akka.system(app).scheduler.schedule(delay, period) {
-            val howmany = AccessToken.deleteExpired
-            Logger.debug("Removed "+howmany+" expired access tokens.")
+            try {
+                val howmany = AccessToken.deleteExpired
+                Logger.debug("Removed "+howmany+" expired access tokens.")
+            } catch {
+                case ex: java.sql.SQLException => if (!ex.getMessage.startsWith("Attempting to obtain a connection from a pool that has already been shutdown")) throw ex
+                case ex: RuntimeException => if (ex.getMessage != "There is no started application") throw ex
+            }
         }
     }
 

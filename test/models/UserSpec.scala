@@ -9,18 +9,18 @@ import play.api.test.Helpers._
 
 import _root_.models.{User}
 
-class UserObjectSpec extends mutable.Specification {
-    "Salting and hashing passwords" should {
-        "produce random salts" in {
-            User.generateSalt() must_!= User.generateSalt()
-        }
-        "hash with random salts" in {
-            User.encodePassword("test") must_!= User.encodePassword("test")
-        }
-        "hash with specified salt when told to do so" in {
-            User.encodePassword("test", "") must_== User.encodePassword("test", "")
-        }
-    }
+class UserObjectSpec extends Specification { def is =
+    "User object specification".title                   ^
+    "Salting and hashing passwords should"              ^
+        "produce random salts"                          ! e1 ^
+        "hash with random salts"                        ! e2 ^
+        "hash with specified salt when told to do so"   ! e3
+
+    def e1 = User.generateSalt() must not be equalTo(User.generateSalt())
+
+    def e2 = User.encodePassword("test") must not be equalTo(User.encodePassword("test"))
+
+    def e3 = User.encodePassword("test", "") must beEqualTo(User.encodePassword("test", ""))
 }
 
 class UserSpec extends Specification { def is =

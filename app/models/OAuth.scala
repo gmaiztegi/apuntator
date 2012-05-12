@@ -9,11 +9,13 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-trait Token {
+sealed trait Token {
     val clientId: Option[Long]
     val userId: Long
     val token: String
     val expiresAt: Date
+
+    def isExpired: Boolean = expiresAt.getTime < System.currentTimeMillis
 }
 
 case class AccessToken(
@@ -38,22 +40,32 @@ case class AuthCode(id: Pk[Long] = NotAssigned,
     expiresAt: Date,
     redirectUri: Option[String] = None) extends Token
 
-case class Client(
+trait Client {
+    val name: String
+    val grantTypes: Set[String]
+    val needsAuthenticityToken: Boolean
+}
+
+case class RegisteredClient(
     id: Pk[Long] = NotAssigned,
     randomId: String,
     name: String,
-    secret: Option[String] = None,
-    grantTypes: List[String] = Nil) {
+    secret: String,
+    grantTypes: Set[String] = Set.empty) extends Client {
 
-    val needsAuthenticityToken: Boolean = this == WebClient
+    val needsAuthenticityToken: Boolean = false
+}
+
+object WebClient extends Client {
+    val name = "Web"
+    val grantTypes: Set[String] = Set.empty
+    val needsAuthenticityToken = true
 }
 
 case class Authentication(
     user: User,
     token: AccessToken,
     client: Client)
-
-object WebClient extends Client(NotAssigned, "", "Web")
 
 object Token {
 
@@ -85,15 +97,33 @@ object AccessToken extends  {
     }
 
     // -- Queries
-    
-    def insert(token: AccessToken) = {
+
+    def findById(id: Long): Option[AccessToken] = {
         DB.withConnection { implicit connection =>
             SQL(
                 """
-                insert into access_tokens values (
-                    nextval('access_token_seq'),
-                    {cId}, {uId}, {token}, {expires}
-                )
+                select * from access_tokens where id = {id}
+                """
+            ).onParams(id).as(simple.singleOpt)
+        }
+    }
+
+    def findByToken(token: String): Option[AccessToken] = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                select * from access_tokens where token = {token}
+                """
+            ).onParams(token).as(simple.singleOpt)
+        }
+    }
+    
+    def insert(token: AccessToken): Option[Long] = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                insert into access_tokens (client_id, user_id, token, expires_at)
+                values ({cId}, {uId}, {token}, {expires})
                 """
             ).on(
                 'cId -> token.clientId.getOrElse(null),
@@ -104,22 +134,22 @@ object AccessToken extends  {
         }
     }
     
-    def delete(id: Long) = {
+    def delete(id: Long): Int = {
         DB.withConnection { implicit connection =>
-            SQL("delete from access_tokens where id = @id").onParams(id).executeUpdate
+            SQL("delete from access_tokens where id = {id}").onParams(id).executeUpdate()
         }
     }
 
-    def deleteExpired = {
+    def deleteExpired: Int = {
         DB.withConnection { implicit connection =>
-            SQL("delete from access_tokens where expires_at < now()").executeUpdate
+            SQL("delete from access_tokens where expires_at < now()").executeUpdate()
         }
     }
 }
 
 object RefreshToken {
 
-    val defaultExpirityMillis: Long = 24 * 60 * 60 * 1000
+    val defaultExpirityMillis: Long = 7 * 24 * 60 * 60 * 1000
 
     val simple = {
         get[Pk[Long]]("refresh_tokens.id") ~
@@ -138,14 +168,36 @@ object RefreshToken {
     }
 }
 
-object Client {
+object RegisteredClient {
 
     val simple = {
         get[Pk[Long]]("clients.id") ~
         get[String]("clients.random_id") ~
         get[String]("clients.name") ~
-        get[Option[String]]("clients.secret") map {
-            case id~rand~name~secret => Client(id, rand, name, secret)
+        get[String]("clients.secret") map {
+            case id~rand~name~secret => RegisteredClient(id, rand, name, secret)
+        }
+    }
+
+    def apply(name: String, grantTypes: Set[String]): RegisteredClient = {
+        val randId = User.generateSalt(128)
+        val secret = User.generateSalt(256)
+        apply(NotAssigned, randId, name, secret, grantTypes)
+    }
+
+    def insert(client: RegisteredClient): Option[Long] = {
+        DB.withConnection { implicit connection =>
+            SQL(
+                """
+                insert into clients (random_id, name, secret, grant_types)
+                values ({randomId}, {name}, {secret}, {grantTypes})
+                """
+            ).on(
+                'randomId -> client.randomId,
+                'name -> client.name,
+                'secret -> client.secret,
+                'grantTypes -> client.grantTypes
+            ).executeInsert()
         }
     }
 }
@@ -154,7 +206,7 @@ object Authentication {
     
     // -- Parsers
     
-    val simple = User.simple ~ AccessToken.simple ~ (Client.simple ?) map {
+    val simple = User.simple ~ AccessToken.simple ~ (RegisteredClient.simple ?) map {
         case user~token~client => Authentication(user, token, client.getOrElse(WebClient))
     }
     

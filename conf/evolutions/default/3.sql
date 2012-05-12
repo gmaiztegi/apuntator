@@ -3,8 +3,8 @@
 # --- !Ups
 
 create table clients (
-    id                          bigint not null,
-    random_id                    varchar(64) not null,
+    id                          bigint not null default nextval('client_seq'),
+    random_id                   varchar(64) not null,
     name                        varchar(255) not null,
     secret                      varchar(255) not null,
     grant_types                 varchar(255) not null,
@@ -15,7 +15,7 @@ create table clients (
 create unique index idx_clients_random_id on clients (random_id);
 
 create table access_tokens (
-    id                          bigint not null,
+    id                          bigint not null default nextval('access_token_seq'),
     client_id                   bigint,
     user_id                     bigint not null,
     token                       varchar(255) not null,

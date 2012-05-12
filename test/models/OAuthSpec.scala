@@ -200,5 +200,5 @@ class AuthenticationSpec extends Specification { def is =
         def around[T <% Result](t: =>T) = running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
             t
         }
-    } 
+    }
 }

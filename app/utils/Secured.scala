@@ -36,7 +36,7 @@ trait Secured extends Results {
         Authenticated(TokenizedAction(action))(defaultAuth)
     }
 
-    def MayAuthenticate(yes: Authentication => Request[AnyContent] => Result, no: Request[AnyContent] => Result) = {
+    def MayAuthenticate(yes: Authentication => Request[AnyContent] => Result)(no: Request[AnyContent] => Result) = {
         Authenticated(Action(no)) { auth =>
             Action(yes(auth))
         }
@@ -48,7 +48,7 @@ trait Secured extends Results {
         }
     }
 
-    def Authenticated[A](onUnauthorized: TokenizedAction[A])(action: Authentication => TokenizedAction[A]): Action[(Action[A], Option[Authentication], Option[AuthenticityToken], A)] = {
+    def Authenticated[A](onUnauthorized: TokenizedAction[A])(action: Authentication => TokenizedAction[A]): Action[(Action[A], A)] = {
 
         val authenticatedBodyParser = BodyParser { request =>
             val token = authenticityToken(request)
@@ -62,14 +62,25 @@ trait Secured extends Results {
                 innerAction.parser(request).mapDone { body =>
                     body.right.map(innerBody => (innerAction, None, token, innerBody))
                 }
-            }
+            }.mapDone(_.right.map { innerBody =>
+                val realRequest = new Request[A] {
+                    def headers = request.headers
+                    def method = request.method
+                    def path = request.path
+                    def queryString = request.queryString
+                    def uri = request.uri
+                    def body = innerBody._4
+                }
+                val realAction = checkAuthenticity(realRequest, innerBody._2, innerBody._3)(innerBody._1)
+                (realAction, innerBody._4)
+            })
+            
         }
 
         Action(authenticatedBodyParser) { request =>
-            val (innerAction, auth, token, innerBody) = request.body
+            val (innerAction, innerBody) = request.body
             val realRequest = request.map(_ => innerBody)
-            val realAction = checkAuthenticity(realRequest, auth, token)(innerAction)
-            realAction(realRequest)
+            innerAction(realRequest)
         }
 
     }
@@ -89,12 +100,7 @@ trait Secured extends Results {
     private def checkAuthenticity[A](req: Request[A], auth: Option[Authentication], token: Option[AuthenticityToken])(action: Action[A]): Action[A] = {
         if (req.method == "GET" || auth.filterNot(_.client.needsAuthenticityToken).isDefined) action else {
             val requestToken = Form(Secured.authenticity_token -> text).bindFromRequest()(req).value.getOrElse("")
-            token filter (_ == requestToken) map (_ => action) getOrElse (nonAuthentic(action.parser))
-            val correct = for {
-                token1 <- token
-                token2 <- Form(Secured.authenticity_token -> text).bindFromRequest()(req).value
-            } yield token1 == token2
-            if (correct.isDefined) action else nonAuthentic(action.parser)
+            token filter (_.token == requestToken) map(_ => action) getOrElse (nonAuthentic(action.parser))
         }
     }
 

@@ -17,7 +17,7 @@ import utils._
 import play.api.test._
 import play.api.test.Helpers._
 
-class SecuredSpec extends Specification with Secured { def is =
+class SecuredSpec extends Specification with Secured with TestUtils { def is =
   "Secured action trait specification".title                    ^
   "IsAuthenticated method"                                      ^
     "passes when authenticated"                                 ! withDatabase(checkStatus(isAuthenticated, webAuthentication, OK)) ^
@@ -49,61 +49,6 @@ class SecuredSpec extends Specification with Secured { def is =
     "does set session var when there isn't a token"             ! withDatabase(checkSetCookie(mayAuthenticateTokenized, notAuthenticated, Secured.authenticity_token)) ^
     "doesn't set session var when there actually is"            ! withDatabase(checkSetCookie(mayAuthenticateTokenized, tokenize(notAuthenticated), Secured.authenticity_token, true)) ^
                                                                 endbr
-
-  def checkSetCookie[A](action: Action[(Action[A], A)], request: Request[A], key: String, negate: Boolean = false) = {
-    val result = getResult(action, request)
-    val cookies = Helpers.cookies(result)
-    val session = Session.decodeFromCookie(cookies.get(Session.COOKIE_NAME))
-    if (negate) session.data must not beDefinedAt(key)  else session.data must beDefinedAt(key)
-  }
-
-  def checkStatus[A](action: Action[(Action[A], A)], request: Request[A], code: Int) = {
-    val result = getResult(action, request)
-    status(result) must beEqualTo(code)
-  }
-
-  def getResult[A](action: Action[(Action[A], A)], request: Request[A]): PlainResult = {
-    import java.net.URLEncoder
-
-    val iterat = action.parser(request)
-    lazy val enumerator = {
-      val body: Array[Byte] = {
-        request.body match {
-          case AnyContentAsFormUrlEncoded(data) => 
-            data.map(item => item._2.map(c => item._1 + "=" + URLEncoder.encode(c, "UTF-8")))
-              .flatten
-              .mkString("&").getBytes
-            case _ => Array():Array[Byte]
-          }
-      }
-      Enumerator(body).andThen(Enumerator.enumInput(Input.EOF))
-    }
-
-    val eventuallyResultOrBody = enumerator |>> iterat
-
-    val eventuallyResultOrRequest =
-      eventuallyResultOrBody
-        .flatMap(it => it.run)
-        .map {
-          _.right.map(b =>
-            new Request[action.BODY_CONTENT] {
-              def uri = request.uri
-              def path = request.path
-              def method = request.method
-              def queryString = Map.empty
-              def headers = request.headers
-              val body = b
-            })
-        }
-        
-    val eventuallyResult = eventuallyResultOrRequest.extend(_.value match {
-      case Redeemed(Left(result)) => result
-      case Redeemed(Right(request)) => action(request)
-      case error => throw new Exception()
-    })
-
-    await(eventuallyResult).asInstanceOf[PlainResult]
-  }
 
   val isAuthenticated = IsAuthenticated { _ => _ =>
     Ok("Okay")

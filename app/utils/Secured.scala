@@ -10,8 +10,15 @@ import play.api.libs.iteratee._
 import models._
 
 object Secured {
-    lazy val access_token: String = Play.maybeApplication map (_.configuration.getString("session.access_token")) flatMap (e => e) getOrElse ("access_token")
-    lazy val authenticity_token: String = Play.maybeApplication map (_.configuration.getString("session.authenticity_token")) flatMap (e => e) getOrElse ("post_authenticity_token")
+    lazy val access_token: String =
+        Play.maybeApplication
+            .flatMap(_.configuration.getString("session.access_token"))
+            .getOrElse("access_token")
+
+    lazy val authenticity_token: String =
+        Play.maybeApplication
+            .flatMap (_.configuration.getString("session.authenticity_token"))
+            .getOrElse ("post_authenticity_token")
 }
 
 trait Secured extends Results {

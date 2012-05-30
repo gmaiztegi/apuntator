@@ -2,6 +2,11 @@ define [
     'marionette'
     'views/FileView'
 ], (Marionette, FileView) ->
-    class FileTable extends Marionette.CollectionView
+    class FileTable extends Marionette.CompositeView
+        tagName: 'table'
+        className: 'table table-striped table-bordered'
         itemView: FileView
-        tagName: 'tbody'
+        template: '#tmpl-file-table'
+
+        appendHtml: (collectionView, itemView) ->
+            collectionView.$('tbody').append(itemView.el)

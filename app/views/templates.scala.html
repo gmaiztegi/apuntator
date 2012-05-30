@@ -24,17 +24,7 @@
             <p>Aquí encontrarás los archivos que han sido añadidos a nuestra querida base de datos de apuntes.</p>
         </div>
         <div class="span8">
-            <table id="file-table" class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Descargar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div id="file-table"></div>
         </div>
     </div>
 </section>
@@ -69,6 +59,16 @@
         </div>
     </div>
 </section>
+</script>
+<script id="tmpl-file-table" type="text/x-handlebars-template">
+<thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Descargar</th>
+    </tr>
+</thead>
+<tbody></tbody>
 </script>
 <script id="tmpl-file-row" type="text/x-handlebars-template">
 <td>{{ name }}</td>

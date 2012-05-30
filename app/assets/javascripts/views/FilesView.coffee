@@ -56,6 +56,6 @@ define [
             
             @files.fetch()
             
-            @table.show @tableview, 'append'
+            @table.show @tableview
             
     new FilesView

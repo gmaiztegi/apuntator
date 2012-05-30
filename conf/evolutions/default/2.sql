@@ -2,6 +2,8 @@
 
 # --- !Ups
 
+create sequence file_seq start with 1;
+
 create table files (
     id                          bigint not null,
     name                        varchar(255) not null,
@@ -17,8 +19,6 @@ create table files (
 
 create index idx_files_name on files (name);
 create index idx_files_filename on files (filename);
-
-create sequence file_seq start with 1;
 
 # --- !Downs
 

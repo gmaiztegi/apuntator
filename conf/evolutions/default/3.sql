@@ -2,6 +2,8 @@
 
 # --- !Ups
 
+create sequence client_seq start with 1;
+
 create table clients (
     id                          bigint not null default nextval('client_seq'),
     random_id                   varchar(64) not null,
@@ -13,6 +15,9 @@ create table clients (
 ;
 
 create unique index idx_clients_random_id on clients (random_id);
+
+
+create sequence access_token_seq start with 1;
 
 create table access_tokens (
     id                          bigint not null default nextval('access_token_seq'),
@@ -28,6 +33,9 @@ create table access_tokens (
 
 create unique index idx_access_tokens_token on access_tokens (token);
 create unique index idx_access_tokens_token_expires_at on access_tokens (token, expires_at);
+
+
+create sequence refresh_token_seq start with 1;
 
 create table refresh_tokens (
     id                          bigint not null,
@@ -45,10 +53,6 @@ create table refresh_tokens (
 
 create unique index idx_refresh_tokens_token on refresh_tokens (token);
 create unique index idx_refresh_tokens_token_expires_at on refresh_tokens (token, expires_at);
-
-create sequence client_seq start with 1;
-create sequence access_token_seq start with 1;
-create sequence refresh_token_seq start with 1;
 
 # --- !Downs
 

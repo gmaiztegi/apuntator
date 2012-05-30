@@ -2,6 +2,8 @@
 
 # --- !Ups
 
+create sequence user_seq start with 1;
+
 create table users (
     id                          bigint not null,
     username                    varchar(255) not null,
@@ -19,8 +21,6 @@ create table users (
     password_requested_at       timestamp,
   constraint pk_user primary key (id))
 ;
-
-create sequence user_seq start with 1;
 
 create unique index idx_users_username on users (username_canonical);
 create unique index idx_users_email on users (email_canonical);

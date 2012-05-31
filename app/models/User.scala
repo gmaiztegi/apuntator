@@ -88,8 +88,11 @@ object User {
         DB.withConnection { implicit connection =>
             SQL(
                 """
-                insert into users values (
-                    nextval('user_seq'),
+                insert into users (
+                    username, username_canonical, email, email_canonical, enabled,
+                    salt, password, algorithm, created_at, last_login, locked,
+                    confirmation_token, password_requested_at
+                ) values (
                     {username}, {userCan}, {email}, {emailCan}, {enabled},
                     {salt}, {password}, {algorithm}, {created}, {login},
                     {locked}, {confirmation}, {requested}

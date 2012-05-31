@@ -5,7 +5,7 @@
 create sequence file_seq start with 1;
 
 create table files (
-    id                          bigint not null,
+    id                          bigint not null default nextval('file_seq'),
     name                        varchar(255) not null,
     description                 text not null,
     random_id                   varchar(64) not null,

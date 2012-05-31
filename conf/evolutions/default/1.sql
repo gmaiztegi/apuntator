@@ -5,7 +5,7 @@
 create sequence user_seq start with 1;
 
 create table users (
-    id                          bigint not null,
+    id                          bigint not null default nextval('user_seq'),
     username                    varchar(255) not null,
     username_canonical          varchar(255) unique not null,
     email                       varchar(255) not null,

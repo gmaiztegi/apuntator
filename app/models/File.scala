@@ -56,8 +56,10 @@ object File {
         DB.withConnection { implicit connection =>
             SQL(
                 """
-                insert into files values (
-                    nextval('file_seq'),
+                insert into files (
+                    name, description, random_id, filename, user_id,
+                    created_at, updated_at
+                ) values (
                     {name}, {description}, {rand}, {filename}, {uid},
                     {created}, {updated}
                 )

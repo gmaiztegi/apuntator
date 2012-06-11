@@ -28,5 +28,9 @@ DELETE  /api/users/:id              controllers.UserApi.delete(id: Long)
 # Home page
 GET     /                           controllers.Application.index
 
+GET     /@test/jasmine.html         controllers.JsTests.index
+GET     /@test/assets/*file         controllers.JsTests.js(file)
+GET     /assets/test/*file          controllers.JsTests.js(file)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

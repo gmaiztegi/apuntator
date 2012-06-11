@@ -1,4 +1,4 @@
-require.config {
+requirejs.config {
     paths:
         domReady: 'libs/require/domReady'
         order: 'libs/require/order'
@@ -13,10 +13,9 @@ require.config {
         polyfiller: 'libs/webshims/polyfiller'
         'iframe-transport': 'libs/jquery/jquery.iframe-transport'
 
-    use:
+    shim:
         handlebars:
-            attach: ->
-                Handlebars
+            exports: 'Handlebars'
 }
 
 require ['app-logged-out'], (App) ->

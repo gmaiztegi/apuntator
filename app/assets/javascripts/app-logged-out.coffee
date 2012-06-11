@@ -1,7 +1,7 @@
 define [
     'jquery'
     'backbone'
-    'use!handlebars'
+    'handlebars'
     'ApuntatorApp'
     'views/MenuView'
     'polyfiller'

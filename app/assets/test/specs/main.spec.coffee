@@ -1,4 +1,4 @@
-require.config {
+requirejs.config {
     baseUrl: '/assets/javascripts'
     paths:
         domReady: 'libs/require/domReady'

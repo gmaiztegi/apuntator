@@ -5,7 +5,6 @@ requirejs.config {
         text: 'libs/require/text'
         use: 'libs/require/use'
         jquery: 'libs/jquery/jquery'
-        template: 'libs/jquery/jquery.tmpl'
         underscore: 'libs/underscore/underscore'
         backbone: 'libs/backbone/backbone-0.9.2'
         marionette: 'libs/backbone/backbone.marionette'

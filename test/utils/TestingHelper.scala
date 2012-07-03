@@ -118,6 +118,7 @@ trait TestUtils extends Specification {
               def method = request.method
               def queryString = request.queryString
               def headers = request.headers
+              def remoteAddress = request.remoteAddress
               val body = b
             })
         }

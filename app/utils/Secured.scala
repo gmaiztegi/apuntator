@@ -76,6 +76,7 @@ trait Secured extends Results {
                     def path = request.path
                     def queryString = request.queryString
                     def uri = request.uri
+                    def remoteAddress = request.remoteAddress
                     def body = innerBody._4
                 }
                 val realAction = checkAuthenticity(realRequest, innerBody._2, innerBody._3)(innerBody._1)
